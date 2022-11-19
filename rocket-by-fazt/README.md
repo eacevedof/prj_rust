@@ -1,1 +1,3 @@
-[Rocket.rs](https://rocket.rs/)
+- [video - fazt - youtube](https://youtu.be/wmUo4PMs-AY)
+- [Rocket.rs](https://rocket.rs/)
+- En rocket los módulos se llaman **crate**
