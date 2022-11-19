@@ -6,7 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = { version = "0.5.0-rc.2", features = ["secrets"] }
+#rocket = { version = "0.5.0-rc.2", features = ["secrets"] }
+rocket = { version = "0.5.0-rc.2" }
 
 # https://api.rocket.rs/v0.5-rc/rocket_dyn_templates/index.html
 [dependencies.rocket_dyn_templates]

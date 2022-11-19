@@ -8,11 +8,10 @@ use rocket_dyn_templates::{Template, context};
 
 #[get("/")]
 //función q devueve un string
-fn index() -> &'static str {
-    "<html><b>hola</b> 
-    hello world!
-    </html>
-    "
+fn index() -> Template {
+    Template::render("index", context! {
+        title: "Rockert Overview"
+    })
 }
 
 #[get("/about")]
@@ -44,6 +43,7 @@ fn delete_profile() -> &'static str {
 //funcion q no devuelve nada. Arranca el servidor
 fn rocket() -> _{
     rocket::build()
+        .attach(Template::fairing())
         .mount("/", routes![index, about])
         .mount("/profile", routes![profile, create_profile, update_profile, delete_profile])
 }
