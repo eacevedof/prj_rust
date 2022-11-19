@@ -7,11 +7,24 @@
 #[get("/")]
 //función q devueve un string
 fn index() -> &'static str {
-    "hello world!"
+    "<html><b>hola</b> 
+    hello world!
+    </html>
+    "
+}
+
+#[get("/about")]
+fn about() -> &'static str {
+    "about"    
+}
+
+#[get("/profile")]
+fn profile() -> &'static str {
+    "profile"
 }
 
 #[launch]
 //funcion q no devuelve nada
 fn rocket() -> _{
-    rocket::build().mount("/", routes![index])
+    rocket::build().mount("/", routes![index, about, profile])
 }
