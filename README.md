@@ -7,6 +7,9 @@ cargo new <nombre-paquete>
 
 //compilar nos movemos a la raiz del proyecto y ejecutamos
 cargo run 
+
+catgo --version
+rustc --version
 ```
 
 #### .gitignore sugerido
