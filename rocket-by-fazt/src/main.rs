@@ -41,5 +41,7 @@ fn delete_profile() -> &'static str {
 #[launch]
 //funcion q no devuelve nada
 fn rocket() -> _{
-    rocket::build().mount("/", routes![index, about, profile, create_profile])
+    rocket::build()
+        .mount("/", routes![index, about])
+        .mount("/profile", routes![profile, create_profile, update_profile, delete_profile])
 }
