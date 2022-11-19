@@ -1,6 +1,8 @@
 //esto trae todos los módulos disponibles 
 #[macro_use] extern crate rocket;
 
+use rocket_dyn_templates::{Template, context};
+
 //otra forma particular es importar uno a uno
 //use rocket::routes
 
@@ -39,7 +41,7 @@ fn delete_profile() -> &'static str {
 }
 
 #[launch]
-//funcion q no devuelve nada
+//funcion q no devuelve nada. Arranca el servidor
 fn rocket() -> _{
     rocket::build()
         .mount("/", routes![index, about])
