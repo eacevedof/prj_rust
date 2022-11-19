@@ -23,8 +23,23 @@ fn profile() -> &'static str {
     "profile"
 }
 
+#[post("/profile")]
+fn create_profile() -> &'static str {
+    "create profile"
+}
+
+#[put("/profile")]
+fn update_profile() -> &'static str {
+    "update profile"
+}
+
+#[delete("/profile")]
+fn delete_profile() -> &'static str {
+    "delete profile"
+}
+
 #[launch]
 //funcion q no devuelve nada
 fn rocket() -> _{
-    rocket::build().mount("/", routes![index, about, profile])
+    rocket::build().mount("/", routes![index, about, profile, create_profile])
 }
