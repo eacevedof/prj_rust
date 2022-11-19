@@ -27,3 +27,4 @@ Cargo.lock
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
 ```
+![](images/after-first-compile-with-cargo-run.png)
