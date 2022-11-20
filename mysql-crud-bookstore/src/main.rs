@@ -9,13 +9,16 @@ pub mod schema;
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-    println!("starting web server on 9009");
+    const PORT: &str = "8081";
+    let mut socket: String =  "127.0.0.1:".to_owned();
+    socket.push_str(PORT);
+    println!("starting web server on {}", socket);
 
     let mut app = tide::new();
 
     routes::setup_routes(&mut app);
 
-    app.listen("127.0.0.1:8081").await?;
+    app.listen(socket).await?;
 
     Ok(())
 }
