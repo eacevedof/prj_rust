@@ -1,5 +1,6 @@
 //esto trae todos los módulos disponibles 
 #[macro_use] extern crate rocket;
+extern crate modules::eduardo;
 
 use rocket_dyn_templates::{Template, context};
 

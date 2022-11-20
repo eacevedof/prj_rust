@@ -1,6 +1,16 @@
 # prj_rust
 Pruebas rust-lang.org
 
+## errores
+```
+error: linking with `cc` failed: exit status: 1
+= note: "cc" "-m64" "-arch" "x86_64" "/var/folders/yt/g9dtf4cj40s6m5b4m_rzjz8m0000gn/T/rustcnrHxH7/symbols.o
+...
+= note: ld: library not found for -lmysqlclient
+  clang: error: linker command failed with exit code 1 (use -v to see invocation)
+```
+- habia que instalar `brew install mysql`
+
 ```rust
 //comando para iniciar un paquete como binario (flag: --bin, por defecto) si se desea crear como libreria hay que usar --lib
 cargo new <nombre-paquete>

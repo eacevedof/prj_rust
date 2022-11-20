@@ -15,7 +15,7 @@ async fn main() -> tide::Result<()> {
 
     routes::setup_routes(&mut app);
 
-    app.listen("127.0.0.1:9009").await?;
+    app.listen("127.0.0.1:8081").await?;
 
     Ok(())
 }
