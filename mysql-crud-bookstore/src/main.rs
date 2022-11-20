@@ -15,10 +15,7 @@ async fn main() -> tide::Result<()> {
     println!("starting web server on {}", socket);
 
     let mut app = tide::new();
-
     routes::setup_routes(&mut app);
-
     app.listen(socket).await?;
-
     Ok(())
 }
