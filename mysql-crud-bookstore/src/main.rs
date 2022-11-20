@@ -10,7 +10,7 @@ pub mod schema;
 #[async_std::main]
 async fn main() -> tide::Result<()> {
     const PORT: &str = "8081";
-    let mut socket: String =  "127.0.0.1:".to_owned();
+    let mut socket: String =  "0.0.0.0:".to_owned();
     socket.push_str(PORT);
     println!("starting web server on {}", socket);
 
