@@ -3,6 +3,9 @@ use super::models::BookData;
 use dotenv::dotenv;
 use std::env;
 
+use mt_logger::*;
+
+
 use super::schema::Book::dsl::*;
 use diesel::mysql::MysqlConnection;
 use diesel::prelude::*; //for .execute or other methods
@@ -10,6 +13,11 @@ use diesel::prelude::*; //for .execute or other methods
 use tide::{Body, Request};
 
 pub async fn create_book(mut req: Request<()>) -> tide::Result<String> {
+
+    mt_new!(None, Level::Trace, OutputStream::Both);
+    mt_log!(Level::Trace, "Message {}: a TRACE message", 4);
+    mt_flush!().unwrap();
+
     let book_to_create: BookData = req.body_json().await?;
     let connection = establish_connection();
 
