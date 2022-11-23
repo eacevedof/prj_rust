@@ -1,2 +1,0 @@
-2022-11-23T20:02:54.271159000: [  TRACE  ] mysql_crud_bookstore::controllers::create_book::{{closure}}() line 18:
-   Message 4: a TRACE message
