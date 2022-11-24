@@ -4,7 +4,7 @@ use dotenv::dotenv;
 use std::env;
 
 use mt_logger::*;
-
+use json::*;
 
 use super::schema::Book::dsl::*;
 use diesel::mysql::MysqlConnection;
@@ -15,7 +15,9 @@ use tide::{Body, Request};
 pub async fn create_book(mut req: Request<()>) -> tide::Result<String> {
 
     mt_new!(None, Level::Trace, OutputStream::Both);
-    mt_log!(Level::Trace, "Message {}: a TRACE message", 4);
+    //let encoded = json::encode(&req).unwrap();
+    let encoded = json::encode(&req).unwrap();
+    mt_log!(Level::Trace, "Message {}", json::stringify(encoded));
     mt_flush!().unwrap();
 
     let book_to_create: BookData = req.body_json().await?;
