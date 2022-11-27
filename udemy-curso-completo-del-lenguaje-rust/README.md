@@ -112,7 +112,7 @@ cargo new <nombre-de-mi-lib> --lib
 	}
 	```
 - tipos de variables
-``rust
+```rust
 l= 98_222;
 let hex = 0xff;
 let octal = 0o77;
