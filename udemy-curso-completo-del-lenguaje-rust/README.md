@@ -13,3 +13,7 @@ cargo new <nombre-del-proyecto>
 cargo new <nombre-de-mi-lib> --lib
 # en src hay un lib.rs
 ```
+- [connfiguración de Cargo.toml](https://doc.rust-lang.org/cargo/reference/manifest.html)
+- En rust los paquetes o dependencias se llaman **crates**
+	- los crates son las cajas de madera que antes se usaban para el envío de mercancia por barco.
+
