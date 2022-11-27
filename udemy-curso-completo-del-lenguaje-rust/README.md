@@ -38,6 +38,13 @@ cargo new <nombre-de-mi-lib> --lib
 	let number:u8 = random();
 	...
 	```
+- version de cargo:
+	- `cargo --version`
+	- desde la version 1.62.0 se puede agregar las dependencias a **Cargo.toml** usando:
+	- `cargo add <nombre-crate>`
+	- Ejemplo: `cargo add log`
+	- Por ejemplo **serde** es una de las librerias más conocidas para serilizar y deserealizar JSON. Esta tiene varios **features** así que puedo añadir el *crate* solo con unas features.
+	- Ejemplo: `cargo add serde --features derive`
 
 
 
