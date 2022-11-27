@@ -2,7 +2,8 @@ fn main() {
     mostrar_bienvenida();
     seleccion_numero(8);
     let nro = get_numero(28);
-    println!("El numero final es {}", nro);
+    let nro_by_ref: i32 = get_numero_by_ref(&99);
+    println!("El numero por valor es {} y por ref {}", nro, nro_by_ref);
     
     let exp_statemnt = {
         10
@@ -30,4 +31,9 @@ fn seleccion_numero(nro: i32) {
 
 fn get_numero(nro: i32) -> i32 {
     8
+}
+
+fn get_numero_by_ref(nro: &i32) -> i32 {
+    //el * indica que se actualice la variable (por referencia) con nro + 4
+    *nro + 4
 }
