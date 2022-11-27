@@ -17,3 +17,4 @@ cargo new <nombre-de-mi-lib> --lib
 - En rust los paquetes o dependencias se llaman **crates**
 	- los crates son las cajas de madera que antes se usaban para el envío de mercancia por barco.
 
+- cuando compilamos en la ruta `<project>/target/debug` se genera el "ejecutable"
