@@ -18,3 +18,12 @@ cargo new <nombre-de-mi-lib> --lib
 	- los crates son las cajas de madera que antes se usaban para el envío de mercancia por barco.
 
 - cuando compilamos en la ruta `<project>/target/debug` se genera el "ejecutable"
+
+- `cargo check` comprueba sin compilar
+- `cargo build --relese` no incluye dependencias de desarrollo
+- [crates.io](https://crates.io)
+	- equivaletne a packageist (https://packagist.org/)
+
+
+
+
