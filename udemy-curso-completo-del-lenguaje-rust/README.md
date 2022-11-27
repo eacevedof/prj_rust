@@ -23,7 +23,21 @@ cargo new <nombre-de-mi-lib> --lib
 - `cargo build --relese` no incluye dependencias de desarrollo
 - [crates.io](https://crates.io)
 	- equivaletne a packageist (https://packagist.org/)
-
+	- instalando crate de random. **rand**
+	- buscamos el paquete y en Cargo.toml en la sección dependencies
+	```
+	[dependencies]
+	rand = "0.8.4"
+	```
+	- despues en el archivo **main.rs**
+	```rust
+	//paquete::función
+	use rand::random;
+	
+	...
+	let number:u8 = random();
+	...
+	```
 
 
 
