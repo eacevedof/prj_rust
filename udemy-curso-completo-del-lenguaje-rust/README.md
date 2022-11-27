@@ -53,4 +53,61 @@ cargo new <nombre-de-mi-lib> --lib
 	- Error Lens
 - Vim
 - Estado de los IDES para Rust: [Are we IDE yet](https://areweideyet.com/)
-
+- **vscode launch.json**
+	```json
+	{
+		// Use IntelliSense to learn about possible attributes.
+		// Hover to view descriptions of existing attributes.
+		// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+		"version": "0.2.0",
+		"configurations": [{
+				"name": "(Windows) Launch",
+				"type": "cppvsdbg",
+				"request": "launch",
+				"program": "${workspaceRoot}/target/debug/hello_cargo.exe",
+				"args": [],
+				"stopAtEntry": false,
+				"cwd": "${workspaceRoot}",
+				"environment": [],
+				"externalConsole": true
+			},
+			{
+				"type": "lldb",
+				"request": "launch",
+				"name": "Mac OSX Debug executable 'hello_cargo'",
+				"cargo": {
+					"args": [
+						"build",
+						"--bin=hello_cargo",
+						"--package=hello_cargo"
+					],
+					"filter": {
+						"name": "hello_cargo",
+						"kind": "bin"
+					}
+				},
+				"args": [],
+				"cwd": "${workspaceFolder}"
+			},
+			{
+				"type": "lldb",
+				"request": "launch",
+				"name": "Mac OSX Debug unit tests in executable 'hello_cargo'",
+				"cargo": {
+					"args": [
+						"test",
+						"--no-run",
+						"--bin=hello_cargo",
+						"--package=hello_cargo"
+					],
+					"filter": {
+						"name": "hello_cargo",
+						"kind": "bin"
+					}
+				},
+				"args": [],
+				"cwd": "${workspaceFolder}"
+			}
+		]
+	}
+	```	
