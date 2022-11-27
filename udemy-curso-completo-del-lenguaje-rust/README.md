@@ -46,5 +46,11 @@ cargo new <nombre-de-mi-lib> --lib
 	- Por ejemplo **serde** es una de las librerias más conocidas para serilizar y deserealizar JSON. Esta tiene varios **features** así que puedo añadir el *crate* solo con unas features.
 	- Ejemplo: `cargo add serde --features derive`
 
-
+#### Seccion 5 selección del IDE
+- JetBrains (con la versio community es suficiente) 
+- Vscode. Extension *rust-analyzer, Better TOML, crates*
+	- debugging *CodeLLDB* sirve para conectarse al codigo que se está ejecutando
+	- Error Lens
+- Vim
+- Estado de los IDES para Rust: [Are we IDE yet](https://areweideyet.com/)
 
