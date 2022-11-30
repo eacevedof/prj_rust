@@ -131,6 +131,10 @@ let caracter = 'a';
 // https://emojipedia.org/
 let emoji = "🇵🇪";
 
+let str_literal: &str = "eduardoaf.com";
+let str_heap: String = "eduardoaf.com en heap".to_string();
+
+
 // Tipos compuestos:
 
 //Tuplas

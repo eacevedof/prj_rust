@@ -1,3 +1,4 @@
+// https://learnxinyminutes.com/docs/es-es/rust-es/
 //structs
 
 struct Usuario {
