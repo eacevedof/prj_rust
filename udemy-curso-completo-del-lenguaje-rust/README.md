@@ -8,7 +8,6 @@
 # crea un proyecto "nombre-del-proyecto"
 cargo new <nombre-del-proyecto>
 # en src hay un main.rs
-
 # opcion
 cargo new <nombre-de-mi-lib> --lib
 # en src hay un lib.rs
