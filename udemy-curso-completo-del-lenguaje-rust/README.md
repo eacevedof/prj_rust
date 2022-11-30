@@ -133,6 +133,8 @@ let emoji = "🇵🇪";
 
 let str_literal: &str = "eduardoaf.com";
 let str_heap: String = "eduardoaf.com en heap".to_string();
+// str_slice apunta al mismo espacio en memoria al que apunta str_heap
+let str_slice: &str = &srt_heap;
 
 
 // Tipos compuestos:
