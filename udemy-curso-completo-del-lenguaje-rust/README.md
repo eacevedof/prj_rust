@@ -149,11 +149,19 @@ let (x, y, z, w) = tupla;
 println!("el primer valor de la tupla {}", tupla.1);
 
 //arreglos
+
 let arreglo = [1, 2, 3, 4, 5];
 print!("el segundo valor del arreglo es {}", arreglo[1]);
 
 //[tipo; longitud]
 let arreglo2: [i128; 5] = [1, 2, 3, 4, 5];
+let mut dinamico: Vec<i32> = vec![1,2,3,4];
+vector.push(5);
+
+//copia de dirección de memoria
+let vec_copy: &[i32] = &vector;
+//print similar a un debug
+println!("{:?} {:?}", dinamico, vec_copy); 
 
 //strings, hay 2 tipos
 let nombre = "Eduardoaf.com";
