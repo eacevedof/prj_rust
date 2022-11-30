@@ -132,6 +132,8 @@ let caracter = 'a';
 let emoji = "🇵🇪";
 
 let str_literal: &str = "eduardoaf.com";
+// es un string muy gordo que se trata como objeto y por lo tanto no se entiende como
+// un tipo primitivo (los primitivos se guardan en STACK lifo)  así que se almacena en la memoria HEAP 
 let str_heap: String = "eduardoaf.com en heap".to_string();
 // str_slice apunta al mismo espacio en memoria al que apunta str_heap
 let str_slice: &str = &srt_heap;
@@ -157,7 +159,6 @@ let arreglo2: [i128; 5] = [1, 2, 3, 4, 5];
 //strings, hay 2 tipos
 let nombre = "Eduardoaf.com";
 //string static es estatico pq se guarda en el binario final. Abarca el concepto de borrowing
-//
 let nombre2: &'static str = "eduardoaf.com";
 
 //este tipo string es un array de unsigned a, permite que la memoria crezca y se aloja en la memoria heap
