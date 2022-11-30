@@ -45,3 +45,4 @@ Cargo.lock
 ```
 ![](images/after-first-compile-with-cargo-run.png)
 
+[https://learnxinyminutes.com/docs/es-es/rust-es](https://learnxinyminutes.com/docs/es-es/rust-es)
