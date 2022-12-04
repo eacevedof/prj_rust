@@ -215,4 +215,10 @@ fn get_numero_by_ref(nro: &i32) -> i32 {
   //* indica que se obtendrá el valor de la dirección nro para sumarle 4 y despues retornarlo
 	*nro + 4
 }
-```
+`
+
+
+
+
+
+``
