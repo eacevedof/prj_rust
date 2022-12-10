@@ -1,5 +1,5 @@
 // https://learnxinyminutes.com/docs/es-es/rust-es/
-use rand::random;
+// use rand::random;
 
 struct Usuario {
     nombre: String,
@@ -9,7 +9,7 @@ struct Usuario {
 }
 
 fn main() {
-    let number:u8 = random();
+    let number:u8 = rand::random();
 
     let mut usuario =  Usuario {
         nombre: "Eaf".to_string(), //una forma para vectorizar string
