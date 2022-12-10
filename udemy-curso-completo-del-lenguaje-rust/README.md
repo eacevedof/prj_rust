@@ -1,6 +1,8 @@
 - [Curso completo rust - Julio Andrés](https://www.udemy.com/course/curso-completo-rust/)
 - [Rust in minutes](https://learnxinyminutes.com/docs/es-es/rust-es/)
 - [contenido del curso](https://www.udemy.com/course/curso-completo-rust/learn/lecture/19834750#content)
+- [crates.io](https://crates.io)
+	- similar a packagist. Repositorio de paquetes de rust
 
 #### Sección 4
 - cargo es el composer o pip de rust
