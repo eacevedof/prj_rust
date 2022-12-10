@@ -15,6 +15,6 @@ fn main() {
         edad: 99,
         activo: true,
     };
-    println!("Usuario {} edad {}", usuario.nombre, usuario.edad);
+    println!("Usuario {} edad {} email {}", usuario.nombre, usuario.edad, usuario.email);
     usuario.activo = false;
 }
