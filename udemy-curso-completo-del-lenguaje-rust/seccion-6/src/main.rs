@@ -1,5 +1,4 @@
 // https://learnxinyminutes.com/docs/es-es/rust-es/
-//structs
 use rand::random;
 
 struct Usuario {
