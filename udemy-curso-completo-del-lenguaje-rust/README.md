@@ -247,3 +247,31 @@ impl Usuario {
 		}
 }
 ```
+#### Enums
+```rust
+enum UserRole {
+    BASIC,
+    ADMIN
+}
+
+enum Website {
+    URL(String),
+    INSTAGRAM(String),
+    LINKEDIN(String),
+    FACEBOOK(String),
+}
+
+fn go_to_website(website:Website) {
+    match website {
+        Website::INSTAGRAM => ;//algo
+        Website::FACEBOOK() => ;// abrelo en otra app
+    }
+}
+
+fn has_role_access(user_role:UserRole) -> bool {
+    match user_role {
+        UserRole::ADMIN => true,
+        UserRole::BASIC => false,
+    }
+}
+```
