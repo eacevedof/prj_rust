@@ -175,6 +175,17 @@ let apellido: String = "Julio".to_string();
 
 let domicilio = String::new();
 domicilio = "mi casa".to_string();
+
+
+//otros ejemplos de string
+//ejemplo 1
+let nombre = "Eduardoaf.com";
+//ejemplo 2
+let somestr: &str = "My site eduardoaf.com";
+//ejemplo 3
+let nombre2: &'static str = "eduardoaf.com";
+//ejemplo 4
+let apellido: String = "Julio".to_string();
 ```
 - funciones
 ```rust
@@ -218,9 +229,4 @@ fn get_numero_by_ref(nro: &i32) -> i32 {
 	*nro + 4
 }
 `
-
-
-
-
-
 ``
