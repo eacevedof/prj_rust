@@ -4,7 +4,7 @@
 struct Usuario {
     nombre: String,
     email: String,
-    edad: i32,
+    nacimiento: i32,
     activo: bool
 }
 
@@ -14,15 +14,27 @@ fn main() {
     let mut usuario =  Usuario {
         nombre: "Eaf".to_string(), //una forma para vectorizar string
         email: String::from("eaf@eduardoaf.com"), //otra forma para vectorizar string
-        edad: 99,
+        nacimiento: 2000,
         activo: true,
     };
+
+    //incluir metodos en las structs
+    impl Usuario {
+        fn edad(&self) -> i32 {
+            let actual = 2022;
+            actual - self.nacimiento            
+        }
+    }
+
+    let edad = usuario.edad();
+
     println!(
-        "Usuario {} edad {} email {} and random number is: {}", 
+        "Usuario {} nacimiento {} email {} and random number is: {} y su edad es: {}", 
         usuario.nombre, 
-        usuario.edad, 
+        usuario.nacimiento, 
         usuario.email,
-        number
+        number,
+        edad
     );
     usuario.activo = false;
 
@@ -38,9 +50,8 @@ fn main() {
         ..usuario2
     };
 
-    //touple structs
-    struct Point(i32, i32, i32);
-    
+
+
 
 }
 
@@ -48,7 +59,7 @@ fn get_nuevo_usuario(nombre:String, email:String) -> Usuario {
     return Usuario { 
         nombre: nombre,
         email: email,
-        edad: 100,
+        nacimiento: 1980,
         activo: true,
     };
 }

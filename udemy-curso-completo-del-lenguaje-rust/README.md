@@ -230,3 +230,20 @@ fn get_numero_by_ref(nro: &i32) -> i32 {
 }
 `
 ``
+#### enums
+```rust
+let mut usuario =  Usuario {
+		nombre: "Eaf".to_string(), //una forma para vectorizar string
+		email: String::from("eaf@eduardoaf.com"), //otra forma para vectorizar string
+		nacimiento: 2000,
+		activo: true,
+};
+
+//incluir metodos en las structs
+impl Usuario {
+		fn edad(&self) -> i32 {
+				let actual = 2022;
+				actual - self.nacimiento            
+		}
+}
+```
