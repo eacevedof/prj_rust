@@ -8,9 +8,6 @@ async fn main() {
     // Load environment variables
     dotenv::dotenv().ok();
 
-    // Initialize tracing
-    tracing_subscriber::fmt::init();
-
     // Check if running as console command
     let args: Vec<String> = env::args().collect();
 
@@ -18,7 +15,23 @@ async fn main() {
         // Run console command
         app::console::run_console(args).await;
     } else {
-        // Run web server
-        app::http_server::run_server().await;
+        // Show help if no command provided
+        println!("LH Traffic - Network Traffic Monitor");
+        println!();
+        println!("Usage:");
+        println!("  lh-traffic <command> [arguments]");
+        println!();
+        println!("Available commands:");
+        println!("  list-connections [filter]  - List network connections");
+        println!("  watch-connections [filter] - Watch connections (auto-refresh every 10s)");
+        println!();
+        println!("Examples:");
+        println!("  lh-traffic list-connections");
+        println!("  lh-traffic list-connections firefox");
+        println!("  lh-traffic watch-connections");
+        println!();
+        println!("Or use dedicated binaries:");
+        println!("  cargo run --bin list-network-connections");
+        println!("  cargo run --bin watch-network-connections");
     }
 }

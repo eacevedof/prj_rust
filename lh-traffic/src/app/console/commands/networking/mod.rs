@@ -1,3 +1,5 @@
 pub mod list_network_connections_command;
+pub mod watch_network_connections_command;
 
 pub use list_network_connections_command::ListNetworkConnectionsCommand;
+pub use watch_network_connections_command::WatchNetworkConnectionsCommand;

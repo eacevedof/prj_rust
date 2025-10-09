@@ -23,6 +23,12 @@ run-list-connections: ## List all network connections
 run-list-connections-filter: ## List network connections with filter (use f=filter)
 	cargo run --bin list-network-connections $(f)
 
+run-watch-connections: ## Watch network connections (auto-refresh every 10s)
+	cargo run --bin watch-network-connections
+
+run-watch-connections-filter: ## Watch network connections with filter (use f=filter)
+	cargo run --bin watch-network-connections $(f)
+
 clean: ## Clean build artifacts
 	cargo clean
 
