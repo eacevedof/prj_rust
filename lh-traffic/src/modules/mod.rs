@@ -1,4 +1,6 @@
 pub mod shared;
+pub mod networking;
+
 // Los demás módulos se agregarán conforme se migren
 // pub mod authenticator;
 // pub mod devops;
