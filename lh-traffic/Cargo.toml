@@ -44,4 +44,8 @@ path = "src/main.rs"
 name = "network_traffic"
 path = "src/bin/network_traffic.rs"
 
+[[bin]]
+name = "list-network-connections"
+path = "src/bin/list_network_connections.rs"
+
 [dev-dependencies]

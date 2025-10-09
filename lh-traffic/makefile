@@ -8,6 +8,24 @@ help: ## Show this help message
 	@echo "targets:"
 	@egrep "^(.+)\:\ ##\ (.+)" ${MAKEFILE_LIST} | column -t -c 2 -s ":#"
 
+build: ## Build the project
+	cargo build --release
+
+check: ## Check code without building
+	cargo check
+
+test: ## Run tests
+	cargo test
+
+run-list-connections: ## List all network connections
+	cargo run --bin list-network-connections
+
+run-list-connections-filter: ## List network connections with filter (use f=filter)
+	cargo run --bin list-network-connections $(f)
+
+clean: ## Clean build artifacts
+	cargo clean
+
 gitpush: ## git push m=any message
 	clear;
 	git add .; git commit -m "$(m)"; git push;

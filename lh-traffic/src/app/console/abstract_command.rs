@@ -41,10 +41,8 @@ impl AbstractCommand {
     pub async fn sleep_seconds(&self, secs: u64) {
         tokio::time::sleep(tokio::time::Duration::from_secs(secs)).await;
     }
-}
 
-impl Default for AbstractCommand {
-    fn default() -> Self {
+    pub fn get_instance() -> Self {
         Self::new()
     }
 }
