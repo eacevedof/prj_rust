@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::sync::Arc;
 use std::collections::HashMap;
 
-use crate::modules::networking::domain::types::NetworkConnection;
+use crate::modules::networking::domain::entities::NetworkConnectionEntity;
 use crate::modules::networking::infrastructure::repositories::SystemNetworkReaderRepository;
 use super::{
     GetLocalNetworkTrafficInputDto,
@@ -19,12 +19,6 @@ pub struct GetLocalNetworkTrafficService {
     system_network_reader_repository: SystemNetworkReaderRepository,
 }
 
-impl Default for GetLocalNetworkTrafficService {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl GetLocalNetworkTrafficService {
     /// Crea una nueva instancia del servicio
     /// No es singleton, se crea cada vez que se necesita (patrón del original)
@@ -33,6 +27,12 @@ impl GetLocalNetworkTrafficService {
             logger: Logger::instance(),
             system_network_reader_repository: SystemNetworkReaderRepository::new(),
         }
+    }
+
+    /// Alias de new() para mantener compatibilidad con la API de Deno
+    /// En Deno: CheckAppService.getInstance()
+    pub fn get_instance() -> Self {
+        Self::new()
     }
 
     /// Método principal del caso de uso
@@ -73,7 +73,7 @@ impl GetLocalNetworkTrafficService {
 
     /// Aplica el filtro a las conexiones
     /// Busca el filtro en todos los campos de la conexión
-    fn apply_filter(&self, connections: Vec<NetworkConnection>, filter: &str) -> Vec<NetworkConnection> {
+    fn apply_filter(&self, connections: Vec<NetworkConnectionEntity>, filter: &str) -> Vec<NetworkConnectionEntity> {
         let filter_lower = filter.to_lowercase();
 
         connections
@@ -95,9 +95,9 @@ impl GetLocalNetworkTrafficService {
             .collect()
     }
 
-    /// Convierte NetworkConnection a Row (HashMap<String, String>)
+    /// Convierte NetworkConnectionEntity a Row (HashMap<String, String>)
     /// Similar a convertir a array asociativo en PHP
-    fn connections_to_rows(&self, connections: Vec<NetworkConnection>) -> Vec<Row> {
+    fn connections_to_rows(&self, connections: Vec<NetworkConnectionEntity>) -> Vec<Row> {
         connections
             .into_iter()
             .map(|conn| {
@@ -122,7 +122,7 @@ impl GetLocalNetworkTrafficService {
     }
 
     /// Obtiene solo conexiones establecidas
-    pub async fn get_established_only(&self) -> Result<Vec<NetworkConnection>> {
+    pub async fn get_established_only(&self) -> Result<Vec<NetworkConnectionEntity>> {
         self.logger
             .log_debug("Getting only established connections", "get_established_only")
             .await;
@@ -133,7 +133,7 @@ impl GetLocalNetworkTrafficService {
     }
 
     /// Obtiene conexiones por puerto específico
-    pub async fn get_by_port(&self, port: u16) -> Result<Vec<NetworkConnection>> {
+    pub async fn get_by_port(&self, port: u16) -> Result<Vec<NetworkConnectionEntity>> {
         self.logger
             .log_debug(
                 &format!("Getting connections for port {}", port),

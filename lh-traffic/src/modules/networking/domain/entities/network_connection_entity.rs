@@ -1,9 +1,9 @@
 use serde::{Serialize, Deserialize};
 
-/// Representa una conexión de red activa en el sistema
+/// Entidad de dominio que representa una conexión de red activa en el sistema
 /// Similar a la salida de `netstat` o `ss`
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct NetworkConnection {
+pub struct NetworkConnectionEntity {
     /// Protocolo (TCP, UDP, etc.)
     pub protocol: String,
 
@@ -23,7 +23,7 @@ pub struct NetworkConnection {
     pub program_name: Option<String>,
 }
 
-impl NetworkConnection {
+impl NetworkConnectionEntity {
     pub fn new(
         protocol: String,
         local_address: String,

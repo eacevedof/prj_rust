@@ -10,5 +10,5 @@ pub use application::{
     NetworkTrafficSummaryDto,
     Row,
 };
-pub use domain::types::NetworkConnection;
+pub use domain::entities::NetworkConnectionEntity;
 pub use domain::enums::ConnectionState;

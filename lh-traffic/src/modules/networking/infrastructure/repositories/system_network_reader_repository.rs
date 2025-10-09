@@ -1,6 +1,6 @@
 use std::process::Command;
 use anyhow::{Result, Context};
-use crate::modules::networking::domain::types::NetworkConnection;
+use crate::modules::networking::domain::entities::NetworkConnectionEntity;
 use crate::modules::shared::infrastructure::components::logger::Logger;
 use std::sync::Arc;
 
@@ -18,10 +18,16 @@ impl SystemNetworkReaderRepository {
         }
     }
 
+    /// Alias de new() para mantener compatibilidad con la API de Deno
+    /// En Deno: SystemOsReaderRepository.getInstance()
+    pub fn get_instance() -> Self {
+        Self::new()
+    }
+
     /// Obtiene todas las conexiones de red activas del sistema
     /// Usa el comando `ss` (Socket Statistics) en Linux
     /// Equivalente a `netstat` pero más moderno
-    pub async fn get_local_network_traffic(&self) -> Result<Vec<NetworkConnection>> {
+    pub async fn get_local_network_traffic(&self) -> Result<Vec<NetworkConnectionEntity>> {
         self.logger
             .log_debug("Getting local network traffic", "SystemNetworkReaderRepository")
             .await;
@@ -56,7 +62,7 @@ impl SystemNetworkReaderRepository {
     }
 
     /// Parsea la salida del comando `ss`
-    fn parse_ss_output(&self, output: &str) -> Result<Vec<NetworkConnection>> {
+    fn parse_ss_output(&self, output: &str) -> Result<Vec<NetworkConnectionEntity>> {
         let mut connections = Vec::new();
 
         for line in output.lines().skip(1) {
@@ -75,7 +81,7 @@ impl SystemNetworkReaderRepository {
 
     /// Parsea una línea individual de la salida de `ss`
     /// Formato típico: tcp   ESTAB  0  0  192.168.1.100:45678  93.184.216.34:443  users:(("firefox",pid=1234,fd=56))
-    fn parse_ss_line(&self, line: &str) -> Option<NetworkConnection> {
+    fn parse_ss_line(&self, line: &str) -> Option<NetworkConnectionEntity> {
         let parts: Vec<&str> = line.split_whitespace().collect();
 
         if parts.len() < 5 {
@@ -87,7 +93,7 @@ impl SystemNetworkReaderRepository {
         let local_address = parts.get(4).unwrap_or(&"").to_string();
         let foreign_address = parts.get(5).unwrap_or(&"").to_string();
 
-        let mut connection = NetworkConnection::new(
+        let mut connection = NetworkConnectionEntity::new(
             protocol,
             local_address,
             foreign_address,
@@ -111,7 +117,7 @@ impl SystemNetworkReaderRepository {
     }
 
     /// Obtiene solo las conexiones establecidas (ESTABLISHED)
-    pub async fn get_established_connections(&self) -> Result<Vec<NetworkConnection>> {
+    pub async fn get_established_connections(&self) -> Result<Vec<NetworkConnectionEntity>> {
         let all_connections = self.get_local_network_traffic().await?;
 
         Ok(all_connections
@@ -121,7 +127,7 @@ impl SystemNetworkReaderRepository {
     }
 
     /// Obtiene conexiones filtradas por puerto local
-    pub async fn get_connections_by_local_port(&self, port: u16) -> Result<Vec<NetworkConnection>> {
+    pub async fn get_connections_by_local_port(&self, port: u16) -> Result<Vec<NetworkConnectionEntity>> {
         let all_connections = self.get_local_network_traffic().await?;
 
         Ok(all_connections
@@ -134,11 +140,5 @@ impl SystemNetworkReaderRepository {
                     == Some(port)
             })
             .collect())
-    }
-}
-
-impl Default for SystemNetworkReaderRepository {
-    fn default() -> Self {
-        Self::new()
     }
 }
