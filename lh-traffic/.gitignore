@@ -1,0 +1,121 @@
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo
+Cargo.lock
+# Descomenta si es una librería (no un binario)
+# !Cargo.lock
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+
+# IDE - IntelliJ / RustRover / CLion
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# IDE - Vim
+*.swp
+*.swo
+*~
+.*.sw?
+
+# IDE - Emacs
+*~
+\#*\#
+.\#*
+
+# OS - macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# OS - Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+
+# OS - Linux
+.directory
+.Trash-*
+
+# Logs y storage
+/storage/
+/logs/
+*.log
+*.log.*
+
+# Credentials y secrets
+*.pem
+*.key
+*.p12
+*.pfx
+*secret*
+*credential*
+*firebase-credentials*
+tunnel-key
+id_rsa*
+*.crt
+*.cer
+
+# Backups
+*.bak
+*.backup
+*.tmp
+*.temp
+
+# Testing
+/.coverage
+/htmlcov/
+/test-results/
+
+# Benchmarks
+/criterion/
+
+# Documentation generada
+/target/doc/
+
+# Flamegraph
+flamegraph.svg
+perf.data
+perf.data.old
+
+# Profiling
+*.profdata
+
+# Node (si usas herramientas de frontend)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python (si usas scripts de Python)
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+*.egg-info/
+
+# Varios
+.cache/
+*.swp
+.history/
