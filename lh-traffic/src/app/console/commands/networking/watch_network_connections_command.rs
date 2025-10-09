@@ -41,7 +41,7 @@ impl WatchNetworkConnectionsCommand {
             match self.display_connections(filter.clone(), iteration).await {
                 Ok(_) => {},
                 Err(e) => {
-                    self.base.logger.log_error(&format!("Error: {}", e)).await;
+                    self.base.logger.log_error(&format!("Error: {}", e), "WatchNetworkConnectionsCommand").await;
                     CliColor::echo_red(&format!("Error: {}", e));
                 }
             }

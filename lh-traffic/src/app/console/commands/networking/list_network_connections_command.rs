@@ -26,7 +26,7 @@ impl ListNetworkConnectionsCommand {
         match self.execute(filter).await {
             Ok(_) => {},
             Err(e) => {
-                self.base.logger.log_error(&format!("Error: {}", e)).await;
+                self.base.logger.log_error(&format!("Error: {}", e), "ListNetworkConnectionsCommand").await;
                 CliColor::die_red(&format!("Error: {}", e));
             }
         }

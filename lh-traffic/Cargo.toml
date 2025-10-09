@@ -30,7 +30,7 @@ colored = "2.0"
 
 [lib]
 name = "lh_traffic"
-path = "src/main.rs"
+path = "src/lib.rs"
 
 [[bin]]
 name = "network_traffic"

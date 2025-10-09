@@ -21,6 +21,14 @@ impl CliColor {
         println!("{}", message.blue());
     }
 
+    pub fn echo_cyan(message: &str) {
+        println!("{}", message.cyan());
+    }
+
+    pub fn echo_yellow(message: &str) {
+        println!("{}", message.yellow());
+    }
+
     pub fn die_red(message: &str) -> ! {
         eprintln!("{}", message.red());
         std::process::exit(1);

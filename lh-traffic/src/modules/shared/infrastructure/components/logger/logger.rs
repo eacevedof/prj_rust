@@ -97,19 +97,19 @@ impl Logger {
         let level_prefix = format!("[{}]", level.to_string().to_uppercase());
         let full_content = format!("{} {}", level_prefix, content);
 
-        // Log to console
+        // Log to console (simple println for CLI app)
         match level {
             LogLevelEnum::Error | LogLevelEnum::Security => {
-                tracing::error!("{}", full_content);
+                eprintln!("{}", full_content);
             }
             LogLevelEnum::Warning => {
-                tracing::warn!("{}", full_content);
+                eprintln!("{}", full_content);
             }
             LogLevelEnum::Debug => {
-                tracing::debug!("{}", full_content);
+                println!("{}", full_content);
             }
             _ => {
-                tracing::info!("{}", full_content);
+                println!("{}", full_content);
             }
         }
 

@@ -43,17 +43,10 @@ impl RedisClient {
     }
 
     /// Get a connection to Redis
+    /// Note: Creates a new connection each time for simplicity
+    /// For production, consider using connection pooling
     pub async fn get_connection(&self) -> Result<Connection> {
-        let mut conn_guard = self.connection.lock().await;
-
-        if let Some(ref mut conn) = *conn_guard {
-            if conn.check_connection() {
-                return Ok(conn.clone());
-            }
-        }
-
         let conn = self.client.get_connection()?;
-        *conn_guard = Some(conn.clone());
         Ok(conn)
     }
 
