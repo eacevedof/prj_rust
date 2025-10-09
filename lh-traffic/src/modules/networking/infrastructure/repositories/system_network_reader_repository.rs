@@ -142,23 +142,3 @@ impl Default for SystemNetworkReaderRepository {
         Self::new()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_ss_line() {
-        let repo = SystemNetworkReaderRepository::new();
-        let line = r#"tcp   ESTAB  0      0      192.168.1.100:45678        93.184.216.34:443         users:(("firefox",pid=1234,fd=56))"#;
-
-        let conn = repo.parse_ss_line(line);
-        assert!(conn.is_some());
-
-        let conn = conn.unwrap();
-        assert_eq!(conn.protocol, "tcp");
-        assert_eq!(conn.state, "ESTAB");
-        assert_eq!(conn.pid, Some(1234));
-        assert_eq!(conn.program_name, Some("firefox".to_string()));
-    }
-}

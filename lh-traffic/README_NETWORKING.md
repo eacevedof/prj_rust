@@ -12,9 +12,7 @@ src/modules/networking/
 │   └── enums/
 │       └── connection_state.rs      # Estados de conexión
 ├── application/
-│   └── services/
-│       └── get_local_network_traffic/
-│           └── get_local_network_traffic_service.rs  # Caso de uso principal
+│   └── get_local_network_traffic_service.rs  # Caso de uso principal
 └── infrastructure/
     └── repositories/
         └── system_network_reader_repository.rs  # Lectura del sistema
@@ -98,7 +96,7 @@ Genera un resumen estadístico del tráfico:
 
 ### Application Layer
 - **Services**: Casos de uso del negocio
-  - `GetLocalNetworkTrafficService`: Orquesta la obtención de tráfico
+  - `GetLocalNetworkTrafficService`: Orquesta la obtención de tráfico de red
 
 ### Infrastructure Layer
 - **Repositories**: Acceso a recursos del sistema
@@ -134,7 +132,7 @@ cargo test --lib system_network_reader_repository::tests
 
 | Deno (TypeScript) | Rust |
 |-------------------|------|
-| `Devops/Application/Services/CheckApp/CheckAppService.ts` | `networking/application/services/get_local_network_traffic/get_local_network_traffic_service.rs` |
+| `Devops/Application/Services/CheckApp/CheckAppService.ts` | `networking/application/get_local_network_traffic_service.rs` |
 | `Devops/Infrastructure/Repositories/SystemOsReaderRepository.ts` | `networking/infrastructure/repositories/system_network_reader_repository.rs` |
 | `PsAuxType` (TypeScript) | `NetworkConnection` (Rust) |
 
