@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//mnt/c/projects/prj_docker_lamp/deno/www/app-ms-antiphising/**)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo:*)",
+      "Bash(curl:*)",
+      "Bash(sh:*)",
+      "Bash(source $HOME/.cargo/env)",
+      "Bash(rustc:*)",
+      "Bash(export PATH=\"$HOME/.cargo/bin:$PATH\")",
+      "Bash(/mnt/c/projects/prj-rust/lh-traffic/target/debug/list-network-connections)",
+      "Bash(/mnt/c/projects/prj-rust/lh-traffic/target/debug/list-network-connections claude)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
