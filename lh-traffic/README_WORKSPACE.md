@@ -22,20 +22,13 @@ Este proyecto está configurado para ejecutarse en WSL2 desde VS Code en Windows
 
 ## Cómo ejecutar la aplicación
 
-### Opción 1: Usar el botón de Play (▶️)
-1. Presiona `Ctrl+Shift+P` y busca "Run Task"
-2. Selecciona `cargo run main (WSL)` (esta es la tarea por defecto)
-3. O usa `Ctrl+Shift+P` → "Tasks: Run Build Task" para ejecutar la tarea principal
+### Opción 1: Usar el botón de Play (▶️) - RECOMENDADO
+1. **Método más rápido**: Presiona `Ctrl+Shift+P` → "Tasks: Run Build Task"
+   - Ejecuta automáticamente: `cargo run main (WSL)` ⭐
+2. **Para tareas específicas**: Presiona `Ctrl+Shift+P` → "Tasks: Run Task"
+   - Elige la tarea que necesites de la lista
 
-### Opción 2: Usar configuraciones de depuración
-1. Ve a la pestaña "Run and Debug" (`Ctrl+Shift+D`)
-2. Selecciona una de las configuraciones disponibles:
-   - `Run main (WSL)` - Ejecuta el binario principal
-   - `Run network_traffic (WSL)` - Ejecuta el binario network_traffic
-   - `Run list-network-connections (WSL)` - Lista conexiones de red
-   - `Run watch-network-connections (WSL)` - Monitorea conexiones
-
-### Opción 3: Tareas disponibles
+### Opción 2: Tareas disponibles
 - `cargo build (WSL)` - Compilar el proyecto
 - `cargo run main (WSL)` - Ejecutar binario principal ⭐ (tarea por defecto)
 - `cargo run network_traffic (WSL)` - Ejecutar monitor de tráfico
@@ -43,6 +36,10 @@ Este proyecto está configurado para ejecutarse en WSL2 desde VS Code en Windows
 - `cargo run watch-network-connections (WSL)` - Monitorear conexiones
 - `cargo check (WSL)` - Verificar código sin compilar
 - `cargo test (WSL)` - Ejecutar pruebas
+
+### Opción 3: Atajos de teclado
+- `Ctrl+Shift+P` → "Tasks: Run Build Task" - Ejecuta la tarea principal
+- `Ctrl+Shift+P` → "Tasks: Run Task" - Muestra todas las tareas disponibles
 
 ## Estructura del proyecto
 
@@ -103,6 +100,13 @@ wsl bash -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -
 # Luego cargar el entorno:
 wsl bash -c "source ~/.cargo/env && cargo --version"
 ```
+
+### Si aparece "Cannot find module 'wsl'" con Node.js:
+Este error se produce cuando VS Code intenta ejecutar `wsl` como un módulo de Node.js. **Ya está solucionado** eliminando las configuraciones problemáticas de `launch.json` y usando solo tareas (tasks).
+
+**Solución**: Usa las tareas en lugar del panel de Debug:
+- `Ctrl+Shift+P` → "Tasks: Run Build Task" 
+- `Ctrl+Shift+P` → "Tasks: Run Task" → Selecciona la tarea deseada
 
 ### Si WSL no responde:
 ```powershell
