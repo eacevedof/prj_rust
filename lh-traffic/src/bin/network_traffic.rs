@@ -1,15 +1,13 @@
 /// Binario de ejemplo para probar el módulo Networking con DTOs
 /// Ejecutar con: cargo run --bin network_traffic
 
-use lh_traffic::modules::networking::{
+use lh_traffic::app::modules::networking::{
     GetLocalNetworkTrafficService,
     GetLocalNetworkTrafficInputDto,
 };
 
 #[tokio::main]
 async fn main() {
-    // Inicializar tracing
-    tracing_subscriber::fmt::init();
 
     println!("=== LH Traffic - Network Monitor ===\n");
 

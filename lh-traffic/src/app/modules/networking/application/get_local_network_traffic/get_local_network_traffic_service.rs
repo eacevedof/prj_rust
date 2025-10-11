@@ -2,15 +2,15 @@ use anyhow::Result;
 use std::sync::Arc;
 use std::collections::HashMap;
 
-use crate::modules::networking::domain::entities::NetworkConnectionEntity;
-use crate::modules::networking::infrastructure::repositories::SystemNetworkReaderRepository;
+use crate::app::modules::networking::domain::entities::NetworkConnectionEntity;
+use crate::app::modules::networking::infrastructure::repositories::SystemNetworkReaderRepository;
 use super::{
     GetLocalNetworkTrafficInputDto,
     GotLocalNetworkTrafficDto,
     Row,
     NetworkTrafficSummaryDto,
 };
-use crate::modules::shared::infrastructure::components::logger::Logger;
+use crate::app::modules::shared::infrastructure::components::logger::Logger;
 
 /// Servicio de aplicación para obtener el tráfico de red local
 /// Siguiendo el patrón del CheckAppService en TypeScript

@@ -1,7 +1,7 @@
 use std::process::Command;
 use anyhow::{Result, Context};
-use crate::modules::networking::domain::entities::NetworkConnectionEntity;
-use crate::modules::shared::infrastructure::components::logger::Logger;
+use crate::app::modules::networking::domain::entities::NetworkConnectionEntity;
+use crate::app::modules::shared::infrastructure::components::logger::Logger;
 use std::sync::Arc;
 
 /// Repositorio para leer información de red del sistema

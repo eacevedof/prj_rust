@@ -2,8 +2,8 @@ pub mod commands;
 pub mod interfaces;
 pub mod abstract_command;
 
-use crate::modules::shared::infrastructure::components::cli::CliArgs;
-use crate::modules::shared::infrastructure::components::cli::CliColor;
+use crate::app::modules::shared::infrastructure::components::cli::CliArgs;
+use crate::app::modules::shared::infrastructure::components::cli::CliColor;
 use chrono::Local;
 
 pub async fn run_console(args: Vec<String>) {

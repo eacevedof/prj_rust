@@ -1,7 +1,7 @@
 use crate::app::console::abstract_command::AbstractCommand;
-use crate::modules::shared::infrastructure::components::cli::CliColor;
-use crate::modules::networking::GetLocalNetworkTrafficService;
-use crate::modules::networking::GetLocalNetworkTrafficInputDto;
+use crate::app::modules::shared::infrastructure::components::cli::CliColor;
+use crate::app::modules::networking::GetLocalNetworkTrafficService;
+use crate::app::modules::networking::GetLocalNetworkTrafficInputDto;
 
 /// Command to list all network connections
 /// Equivalent to: ETLRefreshDomainsInRedisCommand pattern

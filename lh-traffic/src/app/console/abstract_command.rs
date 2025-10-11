@@ -1,5 +1,5 @@
-use crate::modules::shared::infrastructure::components::cli::CliColor;
-use crate::modules::shared::infrastructure::components::logger::Logger;
+use crate::app::modules::shared::infrastructure::components::cli::CliColor;
+use crate::app::modules::shared::infrastructure::components::logger::Logger;
 use chrono::Local;
 use std::sync::Arc;
 
