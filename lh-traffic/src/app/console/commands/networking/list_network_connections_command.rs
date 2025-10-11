@@ -1,10 +1,11 @@
-use crate::app::console::abstract_command::AbstractCommand;
 use crate::app::modules::shared::infrastructure::components::cli::CliColor;
+
 use crate::app::modules::networking::GetLocalNetworkTrafficService;
 use crate::app::modules::networking::GetLocalNetworkTrafficInputDto;
 
+use crate::app::console::abstract_command::AbstractCommand;
+
 /// Command to list all network connections
-/// Equivalent to: ETLRefreshDomainsInRedisCommand pattern
 pub struct ListNetworkConnectionsCommand {
     base: AbstractCommand,
 }
