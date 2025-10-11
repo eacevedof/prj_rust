@@ -1,5 +1,4 @@
 mod app;
-mod modules;
 
 use std::env;
 
