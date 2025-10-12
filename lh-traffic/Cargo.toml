@@ -11,7 +11,7 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-# Database (mantener por si se necesitan en el futuro)
+# Database
 sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono"] }
 redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
 
@@ -23,6 +23,9 @@ anyhow = "1.0"
 thiserror = "1.0"
 async-trait = "0.1"
 once_cell = "1.19"
+regex = "1.0"
+md5 = "0.7"
+rand = "0.8"
 
 # CLI
 clap = { version = "4.0", features = ["derive"] }
@@ -43,5 +46,9 @@ path = "src/bin/list_network_connections.rs"
 [[bin]]
 name = "watch-network-connections"
 path = "src/bin/watch_network_connections.rs"
+
+[[bin]]
+name = "test-macros"
+path = "src/bin/test_macros.rs"
 
 [dev-dependencies]

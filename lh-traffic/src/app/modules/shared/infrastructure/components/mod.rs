@@ -1,11 +1,11 @@
 pub mod cli;
 pub mod db;
 pub mod logger;
+pub mod mailer;
 
 // Components to be migrated
 // pub mod http;
 // pub mod http_fetcher;
-// pub mod mailer;
 // pub mod zipper;
 // pub mod ftper;
 // pub mod cacher;
