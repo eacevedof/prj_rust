@@ -3,7 +3,6 @@ use crate::app::modules::shared::infrastructure::components::logger::Logger;
 use chrono::Local;
 use std::sync::Arc;
 
-/// Abstract command trait
 /// Equivalent to TypeScript's AbstractCommand
 pub struct AbstractCommand {
     pub logger: Arc<Logger>,
@@ -18,6 +17,10 @@ impl AbstractCommand {
             dt_start: String::new(),
             dt_end: String::new(),
         }
+    }
+
+    pub fn get_instance() -> Self {
+        Self::new()
     }
 
     pub fn echo_start(&mut self, message: &str) {
@@ -42,7 +45,4 @@ impl AbstractCommand {
         tokio::time::sleep(tokio::time::Duration::from_secs(secs)).await;
     }
 
-    pub fn get_instance() -> Self {
-        Self::new()
-    }
 }
