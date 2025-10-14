@@ -1,5 +1,6 @@
 pub mod shared;
 pub mod networking;
+pub mod stresser;
 
 // Los demás módulos se agregarán conforme se migren
 // pub mod authenticator;

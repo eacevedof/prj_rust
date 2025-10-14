@@ -9,7 +9,6 @@ use once_cell::sync::Lazy;
 use super::{LogLevelEnum, LoggerMetaType};
 
 /// Logger singleton
-/// Equivalent to TypeScript's Logger
 pub struct Logger {
     meta_data: Arc<RwLock<LoggerMetaType>>,
     logs_path: PathBuf,
@@ -27,7 +26,7 @@ impl Logger {
 
     /// Create a new Logger
     fn new() -> Self {
-        let logs_path = std::env::current_dir()
+        let logs_path: PathBuf = std::env::current_dir()
             .unwrap_or_default()
             .join("storage")
             .join("logs");
@@ -40,7 +39,7 @@ impl Logger {
 
     /// Set metadata for logging context
     pub async fn set_meta_data(&self, meta: LoggerMetaType) {
-        let mut meta_data = self.meta_data.write().await;
+        let mut meta_data: tokio::sync::RwLockWriteGuard<LoggerMetaType> = self.meta_data.write().await;
         *meta_data = meta;
     }
 
@@ -82,11 +81,11 @@ impl Logger {
 
     /// Internal log method
     async fn log(&self, message: &str, title: &str, level: LogLevelEnum) {
-        let meta_data = self.meta_data.read().await;
-        let now = Local::now();
-        let timestamp = now.format("%Y-%m-%d %H:%M:%S").to_string();
+        let meta_data: tokio::sync::RwLockReadGuard<LoggerMetaType> = self.meta_data.read().await;
+        let now: chrono::DateTime<chrono::Local> = Local::now();
+        let timestamp: String = now.format("%Y-%m-%d %H:%M:%S").to_string();
 
-        let content = format!(
+        let content: String = format!(
             "\n[{}]\nrequest_ip: {}\n{}\n{}\n",
             timestamp,
             meta_data.request_ip,
@@ -94,8 +93,8 @@ impl Logger {
             message
         );
 
-        let level_prefix = format!("[{}]", level.to_string().to_uppercase());
-        let full_content = format!("{} {}", level_prefix, content);
+        let level_prefix: String = format!("[{}]", level.to_string().to_uppercase());
+        let full_content: String = format!("{} {}", level_prefix, content);
 
         // Log to console (simple println for CLI app)
         match level {
@@ -121,16 +120,16 @@ impl Logger {
 
     /// Write log to file
     async fn log_to_file(&self, content: &str, level: LogLevelEnum) -> std::io::Result<()> {
-        let today = Local::now().format("%Y-%m-%d").to_string();
-        let extension = if level == LogLevelEnum::Sql { "sql" } else { "log" };
-        let filename = format!("{}-{}.{}", level, today, extension);
+        let today: String = Local::now().format("%Y-%m-%d").to_string();
+        let extension: &str = if level == LogLevelEnum::Sql { "sql" } else { "log" };
+        let filename: String = format!("{}-{}.{}", level, today, extension);
 
         // Ensure logs directory exists
         create_dir_all(&self.logs_path).await?;
 
-        let file_path = self.logs_path.join(filename);
+        let file_path: PathBuf = self.logs_path.join(filename);
 
-        let mut file = OpenOptions::new()
+        let mut file: tokio::fs::File = OpenOptions::new()
             .create(true)
             .append(true)
             .open(file_path)
