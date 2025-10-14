@@ -1,6 +1,7 @@
 use crate::app::modules::shared::infrastructure::components::cli::CliColor;
 use crate::app::modules::stresser::{
     StressAntiPhishingDomainInputDto,
+    StressAntiPhishingDomainOutputDto,
     StressAntiPhishingDomainService,
 };
 use crate::app::console::abstract_command::AbstractCommand;
@@ -29,7 +30,7 @@ impl StressAntiPhishingDomainCommand {
         duration_seconds: u64,
         custom_domains: Vec<String>,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        self.base.echo_start("StressAntiPhishingDomainCommand");
+        self.base.echo_start(std::any::type_name::<Self>());
 
         match self.execute(
             api_url,
@@ -62,12 +63,12 @@ impl StressAntiPhishingDomainCommand {
         duration_seconds: u64,
         custom_domains: Vec<String>,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        // Default values
-        let api_url = api_url.unwrap_or_else(|| {
-            "https://app-ms-antiphising.deno.dev/api/v1/anti-phising/domain".to_string()
-        });
-        let device_auth_token = device_auth_token
-            .unwrap_or_else(|| "aph-dev-auth-iWkAeTMtU0znGOItSmZvmvcxFzlI60I3HOW".to_string());
+        let stress_aph_service: StressAntiPhishingDomainService = StressAntiPhishingDomainService::get_instance();
+
+        // Use stress_aph_service defaults if not provided
+        let api_url: String = api_url.unwrap_or_else(|| stress_aph_service.get_default_api_url());
+        let device_auth_token: String = device_auth_token
+            .unwrap_or_else(|| stress_aph_service.get_default_device_auth_token());
 
         self.base.echo_step(&format!("API URL: {}", api_url));
         self.base
@@ -91,8 +92,7 @@ impl StressAntiPhishingDomainCommand {
         CliColor::echo_yellow("Starting stress test...");
         println!();
 
-        // Create input DTO
-        let input = StressAntiPhishingDomainInputDto {
+        let stress_aph_domain_input_dto: StressAntiPhishingDomainInputDto = StressAntiPhishingDomainInputDto {
             api_url,
             device_auth_token,
             requests_per_second,
@@ -100,9 +100,8 @@ impl StressAntiPhishingDomainCommand {
             custom_domains,
         };
 
-        // Execute service
-        let service = StressAntiPhishingDomainService::get_instance();
-        let output = service.invoke(input).await?;
+        // Execute stress_aph_service (already created above)
+        let output: StressAntiPhishingDomainOutputDto = stress_aph_service.invoke(stress_aph_domain_input_dto).await?;
 
         // Display results
         println!();
@@ -142,11 +141,11 @@ impl StressAntiPhishingDomainCommand {
 
         println!();
         CliColor::echo_cyan("Status Code Distribution:");
-        let mut status_codes: Vec<_> = output.status_codes.iter().collect();
+        let mut status_codes: Vec<(&u16, &u64)> = output.status_codes.iter().collect();
         status_codes.sort_by_key(|(code, _)| *code);
 
         for (code, count) in status_codes {
-            let status_label = match *code {
+            let status_label: String = match *code {
                 0 => "Connection Error".to_string(),
                 200..=299 => format!("{} (Success)", code),
                 400..=499 => format!("{} (Client Error)", code),
@@ -154,7 +153,7 @@ impl StressAntiPhishingDomainCommand {
                 _ => format!("{}", code),
             };
 
-            let percentage = (*count as f64 / output.total_requests as f64) * 100.0;
+            let percentage: f64 = (*count as f64 / output.total_requests as f64) * 100.0;
 
             if *code >= 200 && *code < 300 {
                 CliColor::echo_green(&format!("  {:<25} {} ({:.2}%)", status_label, count, percentage));

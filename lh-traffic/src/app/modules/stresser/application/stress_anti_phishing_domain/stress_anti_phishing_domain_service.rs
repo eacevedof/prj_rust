@@ -13,11 +13,32 @@ use super::stress_anti_phishing_domain_input_dto::StressAntiPhishingDomainInputD
 use super::stress_anti_phishing_domain_output_dto::StressAntiPhishingDomainOutputDto;
 
 /// Service for stress testing the anti-phishing domain API
-pub struct StressAntiPhishingDomainService;
+pub struct StressAntiPhishingDomainService {
+    default_api_url: String,
+    default_device_auth_token: String,
+}
 
 impl StressAntiPhishingDomainService {
+    /// Create a new instance with default configuration
+    pub fn new() -> Self {
+        Self {
+            default_api_url: "https://app-ms-antiphising.deno.dev/api/v1/anti-phising/domain".to_string(),
+            default_device_auth_token: "aph-dev-auth-iWkAeTMtU0znGOItSmZvmvcxFzlI60I3HOW".to_string(),
+        }
+    }
+
     pub fn get_instance() -> Self {
-        Self
+        Self::new()
+    }
+
+    /// Get default API URL
+    pub fn get_default_api_url(&self) -> String {
+        self.default_api_url.clone()
+    }
+
+    /// Get default device auth token
+    pub fn get_default_device_auth_token(&self) -> String {
+        self.default_device_auth_token.clone()
     }
 
     /// Execute stress test
