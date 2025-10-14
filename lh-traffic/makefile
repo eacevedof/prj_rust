@@ -29,6 +29,9 @@ run-watch-connections: ## Watch network connections (auto-refresh every 10s)
 run-watch-connections-filter: ## Watch network connections with filter (use f=filter)
 	cargo run --bin watch-network-connections $(f)
 
+run-stresser-anti-phishing: ## Run stress test for anti-phishing API (use rps=10 dur=10)
+	cargo run --bin stress-anti-phishing-domain $(rps) $(dur)
+
 clean: ## Clean build artifacts
 	cargo clean
 
