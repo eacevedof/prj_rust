@@ -12,7 +12,8 @@
       "Bash(rustc:*)",
       "Bash(export PATH=\"$HOME/.cargo/bin:$PATH\")",
       "Bash(/mnt/c/projects/prj-rust/lh-traffic/target/debug/list-network-connections)",
-      "Bash(/mnt/c/projects/prj-rust/lh-traffic/target/debug/list-network-connections claude)"
+      "Bash(/mnt/c/projects/prj-rust/lh-traffic/target/debug/list-network-connections claude)",
+      "Read(//tmp/**)"
     ],
     "deny": [],
     "ask": []
