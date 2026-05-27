@@ -1,4 +1,5 @@
-#!/bin/bash
+SHELL := /bin/bash
+CARGO := rustup run stable cargo
 TODAY := $(shell date +'%Y-%m-%d')
 CURRENT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 
@@ -9,31 +10,28 @@ help: ## Show this help message
 	@egrep "^(.+)\:\ ##\ (.+)" ${MAKEFILE_LIST} | column -t -c 2 -s ":#"
 
 build: ## Build the project
-	cargo build --release
+	$(CARGO) build --release
 
 check: ## Check code without building
-	cargo check
+	$(CARGO) check
 
 test: ## Run tests
-	cargo test
+	$(CARGO) test
 
 run-list-connections: ## List all network connections
-	cargo run --bin list-network-connections
+	$(CARGO) run --bin list-network-connections
 
 run-list-connections-filter: ## List network connections with filter (use f=filter)
-	cargo run --bin list-network-connections $(f)
+	$(CARGO) run --bin list-network-connections $(f)
 
 run-watch-connections: ## Watch network connections (auto-refresh every 10s)
-	cargo run --bin watch-network-connections
+	$(CARGO) run --bin watch-network-connections
 
 run-watch-connections-filter: ## Watch network connections with filter (use f=filter)
-	cargo run --bin watch-network-connections $(f)
-
-run-stresser-anti-phishing: ## Run stress test for anti-phishing API (use rps=10 dur=10)
-	cargo run --bin stress-anti-phishing-domain $(rps) $(dur)
+	$(CARGO) run --bin watch-network-connections $(f)
 
 clean: ## Clean build artifacts
-	cargo clean
+	$(CARGO) clean
 
 gitpush: ## git push m=any message
 	clear;

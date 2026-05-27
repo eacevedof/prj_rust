@@ -54,8 +54,4 @@ path = "src/bin/watch_network_connections.rs"
 name = "test-macros"
 path = "src/bin/test_macros.rs"
 
-[[bin]]
-name = "stress-anti-phishing-domain"
-path = "src/bin/stress_anti_phishing_domain.rs"
-
 [dev-dependencies]

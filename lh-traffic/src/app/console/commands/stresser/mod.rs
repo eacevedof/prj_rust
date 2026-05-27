@@ -1,3 +1,0 @@
-pub mod stress_anti_phishing_domain_command;
-
-pub use stress_anti_phishing_domain_command::StressAntiPhishingDomainCommand;

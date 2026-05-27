@@ -13,7 +13,14 @@
       "Bash(export PATH=\"$HOME/.cargo/bin:$PATH\")",
       "Bash(/mnt/c/projects/prj-rust/lh-traffic/target/debug/list-network-connections)",
       "Bash(/mnt/c/projects/prj-rust/lh-traffic/target/debug/list-network-connections claude)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)",
+      "Bash(git reset:*)",
+      "Bash(make build:*)",
+      "Bash(/c/Users/Eduardo\\\\ Acevedo/.cargo/bin/cargo build:*)",
+      "Bash(rustup show:*)",
+      "Bash(rustup which:*)"
     ],
     "deny": [],
     "ask": []
