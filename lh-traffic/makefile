@@ -20,16 +20,16 @@ check: ## Check code without building
 test: ## Run tests
 	$(PS) "cargo test"
 
-run-list-connections: ## List all network connections
+run-list: ## List all network connections
 	$(PS) "cargo run --bin list-network-connections"
 
-run-list-connections-filter: ## List network connections with filter (use f=filter)
+run-list-filter: ## List network connections with filter (use f=filter)
 	$(PS) "cargo run --bin list-network-connections $(f)"
 
-run-watch-connections: ## Watch network connections (auto-refresh every 10s)
+run-watch: ## Watch network connections (auto-refresh every 10s)
 	$(PS) "cargo run --bin watch-network-connections"
 
-run-watch-connections-filter: ## Watch network connections with filter (use f=filter)
+run-watch-filter: ## Watch network connections with filter (use f=filter)
 	$(PS) "cargo run --bin watch-network-connections $(f)"
 
 clean: ## Clean build artifacts
