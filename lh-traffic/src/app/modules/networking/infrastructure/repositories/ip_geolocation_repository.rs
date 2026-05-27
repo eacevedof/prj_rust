@@ -1,9 +1,7 @@
 use anyhow::{Result, Context};
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::time::Duration;
 
-use crate::app::modules::shared::infrastructure::components::logger::Logger;
 
 /// Información de geolocalización de una IP
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -51,7 +49,7 @@ struct IpApiResponse {
     org: Option<String>,
     lat: Option<f64>,
     lon: Option<f64>,
-    message: Option<String>,
+    _message: Option<String>,
 }
 
 /// Repositorio para obtener información de geolocalización de IPs
@@ -66,7 +64,6 @@ struct IpApiResponse {
 /// - Usar versión Pro con HTTPS
 /// - O usar otro servicio como MaxMind GeoIP2
 pub struct IpGeolocationRepository {
-    logger: Arc<Logger>,
     client: reqwest::Client,
 }
 
@@ -78,7 +75,6 @@ impl IpGeolocationRepository {
             .expect("Failed to create HTTP client");
 
         Self {
-            logger: Logger::instance(),
             client,
         }
     }
@@ -97,23 +93,10 @@ impl IpGeolocationRepository {
     /// * `Ok(None)` - Si la IP es local o privada
     /// * `Err` - Si hubo un error en la consulta
     pub async fn get_geolocation(&self, ip: &str) -> Result<Option<IpGeolocationInfo>> {
-        // Filtrar IPs locales/privadas
+        // Filtrar IPs locales/privadas (sin log)
         if self.is_local_or_private_ip(ip) {
-            self.logger
-                .log_debug(
-                    &format!("Skipping geolocation for local/private IP: {}", ip),
-                    "IpGeolocationRepository"
-                )
-                .await;
             return Ok(None);
         }
-
-        self.logger
-            .log_debug(
-                &format!("Getting geolocation for IP: {}", ip),
-                "IpGeolocationRepository"
-            )
-            .await;
 
         let url = format!("http://ip-api.com/json/{}", ip);
 
@@ -133,13 +116,6 @@ impl IpGeolocationRepository {
             .context("Failed to parse ip-api.com response")?;
 
         if api_response.status != "success" {
-            let message = api_response.message.unwrap_or_else(|| "Unknown error".to_string());
-            self.logger
-                .log_error(
-                    &format!("ip-api.com error for {}: {}", ip, message),
-                    "IpGeolocationRepository"
-                )
-                .await;
             return Ok(None);
         }
 
@@ -154,13 +130,6 @@ impl IpGeolocationRepository {
             lat: api_response.lat.unwrap_or(0.0),
             lon: api_response.lon.unwrap_or(0.0),
         };
-
-        self.logger
-            .log_debug(
-                &format!("Found geolocation for {}: {} ({})", ip, info.country, info.country_code),
-                "IpGeolocationRepository"
-            )
-            .await;
 
         Ok(Some(info))
     }

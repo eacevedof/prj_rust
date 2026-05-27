@@ -20,29 +20,17 @@ check: ## Check code without building
 test: ## Run tests
 	$(PS) "cargo test"
 
-run-list: ## List all network connections
+run-list: ## List all network connections with country and organization
 	$(PS) "cargo run --bin list-network-connections"
 
 run-list-filter: ## List network connections with filter (use f=filter)
 	$(PS) "cargo run --bin list-network-connections $(f)"
-
-run-list-full: ## List connections with country and organization (hybrid whois + api)
-	$(PS) "cargo run --bin list-enhanced-network-connections"
-
-run-list-full-filter: ## List enhanced connections with filter (use f=filter)
-	$(PS) "cargo run --bin list-enhanced-network-connections $(f)"
 
 run-watch: ## Watch network connections (auto-refresh every 10s)
 	$(PS) "cargo run --bin watch-network-connections"
 
 run-watch-filter: ## Watch network connections with filter (use f=filter)
 	$(PS) "cargo run --bin watch-network-connections $(f)"
-
-run-enhanced: ## Show enhanced network info with geolocation and process details
-	$(PS) "cargo run --bin enhanced-network-info"
-
-run-whois: ## Show network info using whois (slower but no rate limit)
-	$(PS) "cargo run --bin whois-network-info"
 
 clean: ## Clean build artifacts
 	$(PS) "cargo clean"

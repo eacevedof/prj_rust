@@ -1,8 +1,6 @@
 use std::process::Command;
 use anyhow::{Result, Context};
-use std::sync::Arc;
 
-use crate::app::modules::shared::infrastructure::components::logger::Logger;
 
 /// Información obtenida de whois
 #[derive(Debug, Clone)]
@@ -44,15 +42,11 @@ pub struct WhoisInfo {
 /// - Más lento que APIs (2-5 segundos)
 /// - Formato de salida varía según el servidor whois
 /// - Requiere comando whois instalado
-pub struct WhoisRepository {
-    logger: Arc<Logger>,
-}
+pub struct WhoisRepository;
 
 impl WhoisRepository {
     pub fn new() -> Self {
-        Self {
-            logger: Logger::instance(),
-        }
+        Self
     }
 
     pub fn get_instance() -> Self {
@@ -69,23 +63,10 @@ impl WhoisRepository {
     /// * `Ok(None)` - Si la IP es local/privada o no se pudo obtener info
     /// * `Err` - Si el comando whois no está disponible o falló
     pub async fn get_whois_info(&self, ip: &str) -> Result<Option<WhoisInfo>> {
-        // Filtrar IPs locales/privadas
+        // Filtrar IPs locales/privadas (sin log)
         if self.is_local_or_private_ip(ip) {
-            self.logger
-                .log_debug(
-                    &format!("Skipping whois for local/private IP: {}", ip),
-                    "WhoisRepository"
-                )
-                .await;
             return Ok(None);
         }
-
-        self.logger
-            .log_debug(
-                &format!("Getting whois info for IP: {}", ip),
-                "WhoisRepository"
-            )
-            .await;
 
         // Ejecutar comando whois
         let output = if cfg!(target_os = "windows") {
@@ -114,13 +95,6 @@ impl WhoisRepository {
         };
 
         if !output.status.success() {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            self.logger
-                .log_error(
-                    &format!("whois command failed for {}: {}", ip, stderr),
-                    "WhoisRepository"
-                )
-                .await;
             return Ok(None);
         }
 
@@ -132,13 +106,6 @@ impl WhoisRepository {
 
         // Parsear la salida de whois
         let info = self.parse_whois_output(ip, &raw_output);
-
-        self.logger
-            .log_debug(
-                &format!("Found whois info for {}: {:?}", ip, info.organization),
-                "WhoisRepository"
-            )
-            .await;
 
         Ok(Some(info))
     }

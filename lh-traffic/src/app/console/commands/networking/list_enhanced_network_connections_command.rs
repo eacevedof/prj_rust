@@ -94,13 +94,22 @@ impl ListEnhancedNetworkConnectionsCommand {
                 "-".to_string()
             };
 
-            // Get country and organization from foreign IP
+            // Get country and organization from foreign IP (only for remote IPs)
             let remote_ip = hybrid_repo.extract_ip_from_address(foreign_addr);
-            let (country, organization) = if let Ok(Some(info)) = hybrid_repo.get_ip_info(&remote_ip).await {
-                (
-                    info.country_code.unwrap_or(info.country),
-                    info.organization
-                )
+            let is_remote = !remote_ip.starts_with("127.")
+                && !remote_ip.starts_with("0.0.0.0")
+                && remote_ip != "0.0.0.0"
+                && remote_ip != "*";
+
+            let (country, organization) = if is_remote {
+                if let Ok(Some(info)) = hybrid_repo.get_ip_info(&remote_ip).await {
+                    (
+                        info.country_code.unwrap_or(info.country),
+                        info.organization
+                    )
+                } else {
+                    ("-".to_string(), "-".to_string())
+                }
             } else {
                 ("-".to_string(), "-".to_string())
             };
@@ -127,17 +136,8 @@ impl ListEnhancedNetworkConnectionsCommand {
                 println!("{}", line);
             }
 
-            // Show progress every 10 connections
-            if (idx + 1) % 10 == 0 {
-                self.base.logger.log_debug(
-                    &format!("Processed {} of {} connections...", idx + 1, connections.len()),
-                    "ListEnhancedNetworkConnectionsCommand"
-                ).await;
-            }
-
-            // Rate limiting: small delay to avoid overwhelming whois servers
-            // Only needed if we're making many requests
-            if idx < connections.len() - 1 && !remote_ip.starts_with("127.") && remote_ip != "0.0.0.0" {
+            // Rate limiting: only for remote IPs
+            if is_remote && idx < connections.len() - 1 {
                 tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
             }
         }

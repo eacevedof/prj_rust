@@ -1,8 +1,6 @@
 use std::process::Command;
 use anyhow::{Result, Context};
-use std::sync::Arc;
 
-use crate::app::modules::shared::infrastructure::components::logger::Logger;
 
 /// Información de un proceso
 #[derive(Debug, Clone)]
@@ -26,15 +24,11 @@ pub struct ProcessInfo {
 /// Repositorio para obtener información de procesos del sistema
 /// En Windows usa PowerShell Get-Process
 /// En Linux usa /proc filesystem
-pub struct ProcessInfoRepository {
-    logger: Arc<Logger>,
-}
+pub struct ProcessInfoRepository;
 
 impl ProcessInfoRepository {
     pub fn new() -> Self {
-        Self {
-            logger: Logger::instance(),
-        }
+        Self
     }
 
     pub fn get_instance() -> Self {
@@ -51,13 +45,6 @@ impl ProcessInfoRepository {
     /// * `Ok(None)` - Si el proceso no existe o no se pudo obtener información
     /// * `Err` - Si hubo un error en la consulta
     pub async fn get_process_info(&self, pid: u32) -> Result<Option<ProcessInfo>> {
-        self.logger
-            .log_debug(
-                &format!("Getting process info for PID: {}", pid),
-                "ProcessInfoRepository"
-            )
-            .await;
-
         if cfg!(target_os = "windows") {
             self.get_process_info_windows(pid).await
         } else {
@@ -97,12 +84,6 @@ impl ProcessInfoRepository {
             .context("Failed to execute PowerShell command")?;
 
         if !output.status.success() {
-            self.logger
-                .log_debug(
-                    &format!("PowerShell command failed for PID {}", pid),
-                    "ProcessInfoRepository"
-                )
-                .await;
             return Ok(None);
         }
 

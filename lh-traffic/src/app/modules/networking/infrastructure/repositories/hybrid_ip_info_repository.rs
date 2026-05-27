@@ -1,7 +1,4 @@
 use anyhow::Result;
-use std::sync::Arc;
-
-use crate::app::modules::shared::infrastructure::components::logger::Logger;
 use super::{WhoisRepository, WhoisInfo, IpGeolocationRepository, IpGeolocationInfo};
 
 /// Información combinada de IP (whois + geolocalización)
@@ -47,7 +44,6 @@ pub struct HybridIpInfo {
 /// - Información completa (organización + geolocalización)
 /// - Optimizado para velocidad
 pub struct HybridIpInfoRepository {
-    logger: Arc<Logger>,
     whois_repo: WhoisRepository,
     geo_repo: IpGeolocationRepository,
 }
@@ -55,7 +51,6 @@ pub struct HybridIpInfoRepository {
 impl HybridIpInfoRepository {
     pub fn new() -> Self {
         Self {
-            logger: Logger::instance(),
             whois_repo: WhoisRepository::new(),
             geo_repo: IpGeolocationRepository::new(),
         }
@@ -81,23 +76,10 @@ impl HybridIpInfoRepository {
     /// * `Ok(None)` - Local/private IP
     /// * `Err` - Query failed
     pub async fn get_ip_info(&self, ip: &str) -> Result<Option<HybridIpInfo>> {
-        // Skip local/private IPs
+        // Skip local/private IPs (no log, just return)
         if self.is_local_or_private_ip(ip) {
-            self.logger
-                .log_debug(
-                    &format!("Skipping local/private IP: {}", ip),
-                    "HybridIpInfoRepository"
-                )
-                .await;
             return Ok(None);
         }
-
-        self.logger
-            .log_debug(
-                &format!("Getting hybrid info for IP: {}", ip),
-                "HybridIpInfoRepository"
-            )
-            .await;
 
         // 1. Try whois first
         let whois_info = self.whois_repo.get_whois_info(ip).await?;
@@ -105,24 +87,10 @@ impl HybridIpInfoRepository {
         match whois_info {
             Some(whois) if whois.country.is_some() => {
                 // Whois has country - use it (no need for API call)
-                self.logger
-                    .log_debug(
-                        &format!("Using whois info for {}", ip),
-                        "HybridIpInfoRepository"
-                    )
-                    .await;
-
                 Ok(Some(self.from_whois_only(ip, whois)))
             }
             Some(whois) => {
                 // Whois has NO country - query API for geolocation
-                self.logger
-                    .log_debug(
-                        &format!("Whois has no country for {}, querying API...", ip),
-                        "HybridIpInfoRepository"
-                    )
-                    .await;
-
                 let geo_info = self.geo_repo.get_geolocation(ip).await?;
 
                 match geo_info {
@@ -132,13 +100,6 @@ impl HybridIpInfoRepository {
             }
             None => {
                 // Whois failed - try API only
-                self.logger
-                    .log_debug(
-                        &format!("Whois failed for {}, trying API only...", ip),
-                        "HybridIpInfoRepository"
-                    )
-                    .await;
-
                 let geo_info = self.geo_repo.get_geolocation(ip).await?;
 
                 match geo_info {
