@@ -1,13 +1,13 @@
 use anyhow::{Result, Context};
 use serde_json::Value;
 use std::collections::HashMap;
-use sqlx::{Row, Column, Connection, postgres::PgConnection};
+use sqlx::{Row, Column, Connection};
 use md5;
 
 use crate::log_debug;
 
 use crate::app::modules::shared::infrastructure::components::db::{
-    PostgresClient, PostgresPoolClient, CommandResult
+    PostgresClient, PostgresPoolClient
 };
 use crate::app::modules::shared::infrastructure::components::db::redis_client::RedisClient;
 use crate::app::modules::shared::infrastructure::components::db::redis_pool_client::RedisPoolClient;
@@ -345,7 +345,7 @@ impl AbstractPostgresRepository {
             .arg(&json_data)
             .arg("EX")
             .arg(ttl_minutes * 60)
-            .query_async(&mut conn)
+            .query_async::<_, ()>(&mut conn)
             .await?;
 
         Ok(())
@@ -395,7 +395,7 @@ impl AbstractPostgresRepository {
             .arg(&json_data)
             .arg("EX")
             .arg(ttl_minutes * 60)
-            .query_async(&mut conn)
+            .query_async::<_, ()>(&mut conn)
             .await?;
 
         RedisPoolClient::release(idx).await?;

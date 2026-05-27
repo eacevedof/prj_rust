@@ -127,7 +127,7 @@ impl PostgresPoolClient {
                 let name = column.name().to_string();
                 let value: Value = row.try_get_raw(i)
                     .ok()
-                    .and_then(|raw| {
+                    .and_then(|_raw| {
                         // Try to decode as different types
                         if let Ok(v) = row.try_get::<String, _>(i) {
                             Some(Value::String(v))

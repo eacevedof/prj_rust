@@ -1,5 +1,4 @@
-mod app;
-
+use lh_traffic::app;
 use std::env;
 
 #[tokio::main]

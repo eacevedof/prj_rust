@@ -25,31 +25,45 @@ impl SystemNetworkReaderRepository {
     }
 
     /// Obtiene todas las conexiones de red activas del sistema
-    /// Usa el comando `ss` (Socket Statistics) en Linux
-    /// Equivalente a `netstat` pero más moderno
+    /// En Linux: usa el comando `ss` (Socket Statistics)
+    /// En Windows: usa el comando `netstat`
     pub async fn get_local_network_traffic(&self) -> Result<Vec<NetworkConnectionEntity>> {
         self.logger
             .log_debug("Getting local network traffic", "SystemNetworkReaderRepository")
             .await;
 
-        // Comando ss: muestra todas las conexiones TCP/UDP con información de procesos
-        // -a: todas las conexiones
-        // -n: no resolver nombres (más rápido)
-        // -t: TCP
-        // -u: UDP
-        // -p: mostrar procesos
-        let output = Command::new("ss")
-            .args(&["-antp"])
+        // Detectar sistema operativo y usar el comando apropiado
+        let (command, args, is_windows) = if cfg!(target_os = "windows") {
+            // Windows: netstat -ano
+            // -a: todas las conexiones
+            // -n: no resolver nombres (más rápido)
+            // -o: mostrar PID del proceso
+            ("netstat", vec!["-ano"], true)
+        } else {
+            // Linux: ss -antp
+            // -a: todas las conexiones
+            // -n: no resolver nombres (más rápido)
+            // -t: TCP
+            // -p: mostrar procesos
+            ("ss", vec!["-antp"], false)
+        };
+
+        let output = Command::new(command)
+            .args(&args)
             .output()
-            .context("Failed to execute 'ss' command. Make sure it's installed.")?;
+            .context(format!("Failed to execute '{}' command. Make sure it's installed.", command))?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            anyhow::bail!("Command 'ss' failed: {}", stderr);
+            anyhow::bail!("Command '{}' failed: {}", command, stderr);
         }
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        let connections = self.parse_ss_output(&stdout)?;
+        let connections = if is_windows {
+            self.parse_netstat_output(&stdout)?
+        } else {
+            self.parse_ss_output(&stdout)?
+        };
 
         self.logger
             .log_debug(
@@ -59,6 +73,56 @@ impl SystemNetworkReaderRepository {
             .await;
 
         Ok(connections)
+    }
+
+    /// Parsea la salida del comando `netstat` (Windows)
+    /// Formato típico: TCP    192.168.1.100:45678    93.184.216.34:443      ESTABLISHED     1234
+    fn parse_netstat_output(&self, output: &str) -> Result<Vec<NetworkConnectionEntity>> {
+        let mut connections = Vec::new();
+
+        for line in output.lines().skip(4) {
+            // Saltar encabezados (primeras 4 líneas)
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            if let Some(conn) = self.parse_netstat_line(line) {
+                connections.push(conn);
+            }
+        }
+
+        Ok(connections)
+    }
+
+    /// Parsea una línea individual de la salida de `netstat` (Windows)
+    fn parse_netstat_line(&self, line: &str) -> Option<NetworkConnectionEntity> {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+
+        if parts.len() < 4 {
+            return None;
+        }
+
+        let protocol = parts[0].to_string();
+        let local_address = parts[1].to_string();
+        let foreign_address = parts[2].to_string();
+        let state = parts[3].to_string();
+
+        let mut connection = NetworkConnectionEntity::new(
+            protocol,
+            local_address,
+            foreign_address,
+            state,
+        );
+
+        // Si hay PID disponible (última columna)
+        if let Some(pid_str) = parts.get(4) {
+            if let Ok(pid) = pid_str.parse::<u32>() {
+                // En Windows netstat no muestra el nombre del proceso, solo el PID
+                connection = connection.with_process_info(pid, format!("PID:{}", pid));
+            }
+        }
+
+        Some(connection)
     }
 
     /// Parsea la salida del comando `ss`

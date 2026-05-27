@@ -1,5 +1,4 @@
-SHELL := /bin/bash
-CARGO := rustup run stable cargo
+PS := powershell.exe -NoProfile -Command
 TODAY := $(shell date +'%Y-%m-%d')
 CURRENT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 
@@ -10,28 +9,31 @@ help: ## Show this help message
 	@egrep "^(.+)\:\ ##\ (.+)" ${MAKEFILE_LIST} | column -t -c 2 -s ":#"
 
 build: ## Build the project
-	$(CARGO) build --release
+	$(PS) "cargo build"
+
+build-release: ## Build release version
+	$(PS) "cargo build --release"
 
 check: ## Check code without building
-	$(CARGO) check
+	$(PS) "cargo check"
 
 test: ## Run tests
-	$(CARGO) test
+	$(PS) "cargo test"
 
 run-list-connections: ## List all network connections
-	$(CARGO) run --bin list-network-connections
+	$(PS) "cargo run --bin list-network-connections"
 
 run-list-connections-filter: ## List network connections with filter (use f=filter)
-	$(CARGO) run --bin list-network-connections $(f)
+	$(PS) "cargo run --bin list-network-connections $(f)"
 
 run-watch-connections: ## Watch network connections (auto-refresh every 10s)
-	$(CARGO) run --bin watch-network-connections
+	$(PS) "cargo run --bin watch-network-connections"
 
 run-watch-connections-filter: ## Watch network connections with filter (use f=filter)
-	$(CARGO) run --bin watch-network-connections $(f)
+	$(PS) "cargo run --bin watch-network-connections $(f)"
 
 clean: ## Clean build artifacts
-	$(CARGO) clean
+	$(PS) "cargo clean"
 
 gitpush: ## git push m=any message
 	clear;

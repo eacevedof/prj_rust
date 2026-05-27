@@ -20,7 +20,17 @@
       "Bash(make build:*)",
       "Bash(/c/Users/Eduardo\\\\ Acevedo/.cargo/bin/cargo build:*)",
       "Bash(rustup show:*)",
-      "Bash(rustup which:*)"
+      "Bash(rustup which:*)",
+      "Bash(where:*)",
+      "Bash(rustup toolchain install:*)",
+      "Bash(rustup default:*)",
+      "Bash(rustup toolchain:*)",
+      "Bash(make clean:*)",
+      "Bash(powershell.exe -NoProfile -Command \"Get-Command link | Select-Object -ExpandProperty Source\")",
+      "Bash(powershell.exe -NoProfile -Command \"Get-ChildItem -Path ''C:\\\\Program Files \\(x86\\)\\\\Microsoft Visual Studio'',''C:\\\\Program Files\\\\Microsoft Visual Studio'' -Recurse -Filter link.exe -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName\")",
+      "Bash(powershell.exe:*)",
+      "Bash(cmd.exe /c \"start \"\"\"\" \"\"C:\\\\Program Files \\(x86\\)\\\\Microsoft Visual Studio\\\\Installer\\\\vs_installer.exe\"\"\")",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

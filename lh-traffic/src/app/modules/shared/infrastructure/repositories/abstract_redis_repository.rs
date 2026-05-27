@@ -1,6 +1,6 @@
 use anyhow::Result;
 use std::collections::HashMap;
-use redis::{AsyncCommands, Pipeline};
+use redis::AsyncCommands;
 
 use crate::app::modules::shared::infrastructure::components::db::{
     RedisClient, RedisPoolClient
@@ -27,15 +27,15 @@ const SIXTY_SECONDS: i64 = 60;
 /// }
 /// ```
 pub struct AbstractRedisRepository {
-    environment: String,
+    _environment: String,
 }
 
 impl AbstractRedisRepository {
     pub fn new() -> Self {
-        let environment = std::env::var("APP_ENV")
+        let _environment = std::env::var("APP_ENV")
             .unwrap_or_else(|_| "development".to_string());
 
-        Self { environment }
+        Self { _environment }
     }
 
     // ========================================================================
@@ -75,11 +75,11 @@ impl AbstractRedisRepository {
 
         // Set hash
         for (field, value) in data {
-            conn.hset(redis_key, field, value).await?;
+            conn.hset::<_, _, _, ()>(redis_key, field, value).await?;
         }
 
         // Set expiration
-        conn.expire(redis_key, (ttl_minutes * SIXTY_SECONDS) as i64).await?;
+        conn.expire::<_, ()>(redis_key, (ttl_minutes * SIXTY_SECONDS) as i64).await?;
 
         Ok(())
     }
@@ -95,7 +95,7 @@ impl AbstractRedisRepository {
 
         let json_data = serde_json::to_string(data)?;
 
-        conn.lpush(queue_name, json_data).await?;
+        conn.lpush::<_, _, ()>(queue_name, json_data).await?;
 
         Ok(())
     }
@@ -105,7 +105,7 @@ impl AbstractRedisRepository {
         let redis = RedisClient::instance();
         let mut conn = redis.get_connection().await?;
 
-        conn.del(redis_key).await?;
+        conn.del::<_, ()>(redis_key).await?;
 
         Ok(())
     }
@@ -176,7 +176,7 @@ impl AbstractRedisRepository {
             pipe.expire(&op.redis_key, (op.redis_ttl_mins * SIXTY_SECONDS) as i64);
         }
 
-        pipe.query_async(&mut conn).await?;
+        pipe.query_async::<_, ()>(&mut conn).await?;
 
         Ok(())
     }
@@ -211,11 +211,11 @@ impl AbstractRedisRepository {
 
         // Set hash
         for (field, value) in data {
-            conn.hset(redis_key, field, value).await?;
+            conn.hset::<_, _, _, ()>(redis_key, field, value).await?;
         }
 
         // Set expiration
-        conn.expire(redis_key, (ttl_minutes * SIXTY_SECONDS) as i64).await?;
+        conn.expire::<_, ()>(redis_key, (ttl_minutes * SIXTY_SECONDS) as i64).await?;
 
         RedisPoolClient::release(idx).await?;
 
@@ -226,7 +226,7 @@ impl AbstractRedisRepository {
     pub async fn delete_single_key_pool(&self, redis_key: &str) -> Result<()> {
         let (idx, mut conn) = RedisPoolClient::acquire().await?;
 
-        conn.del(redis_key).await?;
+        conn.del::<_, ()>(redis_key).await?;
 
         RedisPoolClient::release(idx).await?;
 
@@ -283,7 +283,7 @@ impl AbstractRedisRepository {
             pipe.expire(&op.redis_key, (op.redis_ttl_mins * SIXTY_SECONDS) as i64);
         }
 
-        pipe.query_async(&mut conn).await?;
+        pipe.query_async::<_, ()>(&mut conn).await?;
 
         RedisPoolClient::release(idx).await?;
 
@@ -301,7 +301,7 @@ impl AbstractRedisRepository {
 
         let json_data = serde_json::to_string(data)?;
 
-        conn.lpush(queue_name, json_data).await?;
+        conn.lpush::<_, _, ()>(queue_name, json_data).await?;
 
         RedisPoolClient::release(idx).await?;
 

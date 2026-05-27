@@ -61,7 +61,7 @@ impl RedisPoolClient {
         let redis_url = std::env::var("APP_REDIS_URL")
             .unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
 
-        let redis_db: i64 = std::env::var("APP_REDIS_DB")
+        let _redis_db: i64 = std::env::var("APP_REDIS_DB")
             .unwrap_or_else(|_| "0".to_string())
             .parse()
             .unwrap_or(0);
