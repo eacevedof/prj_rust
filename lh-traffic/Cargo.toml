@@ -54,4 +54,16 @@ path = "src/bin/watch_network_connections.rs"
 name = "test-macros"
 path = "src/bin/test_macros.rs"
 
+[[bin]]
+name = "enhanced-network-info"
+path = "src/bin/enhanced_network_info.rs"
+
+[[bin]]
+name = "whois-network-info"
+path = "src/bin/whois_network_info.rs"
+
+[[bin]]
+name = "list-enhanced-network-connections"
+path = "src/bin/list_enhanced_network_connections.rs"
+
 [dev-dependencies]

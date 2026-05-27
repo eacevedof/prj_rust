@@ -29,6 +29,7 @@
 
 pub mod list_network_connections_command;   // Declara: list_network_connections_command.rs
 pub mod watch_network_connections_command;  // Declara: watch_network_connections_command.rs
+pub mod list_enhanced_network_connections_command;  // Declara: list_enhanced_network_connections_command.rs
 
 // NOTA: El nombre del módulo es el nombre del archivo SIN la extensión .rs
 //       Si tuvieras un archivo "foo_bar.rs", lo declararías como: pub mod foo_bar;
@@ -48,6 +49,7 @@ pub mod watch_network_connections_command;  // Declara: watch_network_connection
 
 pub use list_network_connections_command::ListNetworkConnectionsCommand;
 pub use watch_network_connections_command::WatchNetworkConnectionsCommand;
+pub use list_enhanced_network_connections_command::ListEnhancedNetworkConnectionsCommand;
 
 // RESUMEN COMPARATIVO:
 // ====================
