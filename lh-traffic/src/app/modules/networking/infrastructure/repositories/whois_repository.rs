@@ -81,7 +81,7 @@ impl WhoisRepository {
                         .args(&[
                             "-NoProfile",
                             "-Command",
-                            &format!("(Invoke-WebRequest -Uri 'https://whois.arin.net/rest/ip/{}' -Headers @{{'Accept'='text/plain'}}).Content", ip)
+                            &format!("(Invoke-WebRequest -UseBasicParsing -Uri 'https://whois.arin.net/rest/ip/{}' -Headers @{{'Accept'='text/plain'}}).Content", ip)
                         ])
                         .output()
                 })
