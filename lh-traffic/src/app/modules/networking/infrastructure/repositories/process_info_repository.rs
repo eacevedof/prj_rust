@@ -54,69 +54,61 @@ impl ProcessInfoRepository {
 
     /// Obtiene información del proceso en Windows usando PowerShell
     async fn get_process_info_windows(&self, pid: u32) -> Result<Option<ProcessInfo>> {
-        // PowerShell command - usa pipeline para obtener nombre y path
-        let ps_script = format!(
-            r#"Get-Process -Id {} -ErrorAction SilentlyContinue | ForEach-Object {{ "$($_.Id)|$($_.Name)|$($_.Path)|" }}"#,
-            pid
-        );
-
-        let output = Command::new("powershell.exe")
-            .args(&[
-                "-NoProfile",
-                "-NonInteractive",
-                "-Command",
-                &ps_script
-            ])
+        // Usar tasklist (más compatible con Cygwin que PowerShell)
+        let output = Command::new("tasklist.exe")
+            .args(&["/FI", &format!("PID eq {}", pid)])
             .output()
-            .context("Failed to execute PowerShell command")?;
+            .context("Failed to execute tasklist command")?;
 
         if !output.status.success() {
             return Ok(None);
         }
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        let line = stdout.trim();
 
-        if line.is_empty() {
+        if stdout.is_empty() || stdout.contains("INFO: No tasks") || stdout.contains("INFO: No se") {
             return Ok(None);
         }
 
-        self.parse_windows_output(line)
+        self.parse_tasklist_table_output(pid, &stdout)
     }
 
-    /// Parsea la salida de PowerShell
-    /// Formato: "PID|Name|Path|Owner"
-    fn parse_windows_output(&self, line: &str) -> Result<Option<ProcessInfo>> {
-        let parts: Vec<&str> = line.split('|').collect();
+    /// Parsea la salida de tasklist (formato tabla)
+    /// Formato:
+    /// Nombre de imagen               PID Nombre de sesión Núm. de ses Uso de memor
+    /// ========================= ======== ================ =========== ============
+    /// claude.exe                   23636 Console                    1   702.360 KB
+    fn parse_tasklist_table_output(&self, pid: u32, output: &str) -> Result<Option<ProcessInfo>> {
+        // Buscar la línea que contiene el proceso
+        for line in output.lines().skip(2) { // Saltar header y separador
+            let line = line.trim();
 
-        if parts.len() < 3 {
-            return Ok(None);
+            if line.is_empty() {
+                continue;
+            }
+
+            // Parsear por espacios múltiples
+            let parts: Vec<&str> = line.split_whitespace().collect();
+
+            if parts.len() < 2 {
+                continue;
+            }
+
+            // Primera parte es el nombre del proceso
+            let name = parts[0].to_string();
+
+            if !name.is_empty() {
+                return Ok(Some(ProcessInfo {
+                    pid,
+                    name,
+                    path: "Unknown".to_string(),
+                    working_directory: None,
+                    owner: None,
+                }));
+            }
         }
 
-        let pid = parts[0].parse::<u32>().ok();
-        let name = parts[1].to_string();
-        let path = parts[2].to_string();
-        let owner = if parts.len() > 3 && !parts[3].is_empty() {
-            Some(parts[3].to_string())
-        } else {
-            None
-        };
-
-        if let Some(pid) = pid {
-            Ok(Some(ProcessInfo {
-                pid,
-                name: if name.is_empty() { "?".to_string() } else { name },
-                path: if path.is_empty() || path == "null" {
-                    "Unknown".to_string()
-                } else {
-                    path
-                },
-                working_directory: None, // No lo obtenemos por simplicidad
-                owner,
-            }))
-        } else {
-            Ok(None)
-        }
+        Ok(None)
     }
 
     /// Obtiene información del proceso en Linux leyendo /proc

@@ -45,15 +45,32 @@ impl ListNetworkConnectionsCommand {
         // Get connections
         let mut connections = network_repo.get_local_network_traffic().await?;
 
-        // Apply filter if provided
+        // Apply filter if provided (supports multiple filters with comma: "established,remote")
         if let Some(ref filter_text) = filter {
-            let filter_lower = filter_text.to_lowercase();
+            let filters: Vec<String> = filter_text
+                .split(',')
+                .map(|s| s.trim().to_lowercase())
+                .collect();
+
             connections.retain(|conn| {
-                conn.protocol.to_lowercase().contains(&filter_lower)
-                    || conn.local_address.to_lowercase().contains(&filter_lower)
-                    || conn.foreign_address.to_lowercase().contains(&filter_lower)
-                    || conn.state.to_lowercase().contains(&filter_lower)
-                    || conn.program_name.as_ref().map_or(false, |p| p.to_lowercase().contains(&filter_lower))
+                // All filters must match (AND logic)
+                filters.iter().all(|filter_lower| {
+                    // Special filter: "remote" = exclude local IPs
+                    if filter_lower == "remote" {
+                        let remote_ip = hybrid_repo.extract_ip_from_address(&conn.foreign_address);
+                        return !remote_ip.starts_with("127.")
+                            && !remote_ip.starts_with("192.168.")
+                            && !remote_ip.starts_with("0.0.0.0")
+                            && remote_ip != "*";
+                    }
+
+                    // General filter: search in all fields (OR logic within the filter)
+                    conn.protocol.to_lowercase().contains(filter_lower)
+                        || conn.local_address.to_lowercase().contains(filter_lower)
+                        || conn.foreign_address.to_lowercase().contains(filter_lower)
+                        || conn.state.to_lowercase().contains(filter_lower)
+                        || conn.program_name.as_ref().map_or(false, |p| p.to_lowercase().contains(filter_lower))
+                })
             });
         }
 

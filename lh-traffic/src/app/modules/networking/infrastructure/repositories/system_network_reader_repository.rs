@@ -1,21 +1,15 @@
 use std::process::Command;
 use anyhow::{Result, Context};
 use crate::app::modules::networking::domain::entities::NetworkConnectionEntity;
-use crate::app::modules::shared::infrastructure::components::logger::Logger;
-use std::sync::Arc;
 
 /// Repositorio para leer información de red del sistema
 /// Similar a SystemOsReaderRepository en TypeScript
-pub struct SystemNetworkReaderRepository {
-    logger: Arc<Logger>,
-}
+pub struct SystemNetworkReaderRepository;
 
 impl SystemNetworkReaderRepository {
     /// Crea una nueva instancia (no es singleton, siguiendo el patrón del original)
     pub fn new() -> Self {
-        Self {
-            logger: Logger::instance(),
-        }
+        Self
     }
 
     /// Alias de new() para mantener compatibilidad con la API de Deno
@@ -28,10 +22,6 @@ impl SystemNetworkReaderRepository {
     /// En Linux: usa el comando `ss` (Socket Statistics)
     /// En Windows: usa el comando `netstat`
     pub async fn get_local_network_traffic(&self) -> Result<Vec<NetworkConnectionEntity>> {
-        self.logger
-            .log_debug("Getting local network traffic", "SystemNetworkReaderRepository")
-            .await;
-
         // Detectar sistema operativo y usar el comando apropiado
         let (command, args, is_windows) = if cfg!(target_os = "windows") {
             // Windows: netstat -ano
@@ -64,13 +54,6 @@ impl SystemNetworkReaderRepository {
         } else {
             self.parse_ss_output(&stdout)?
         };
-
-        self.logger
-            .log_debug(
-                &format!("Found {} network connections", connections.len()),
-                "SystemNetworkReaderRepository"
-            )
-            .await;
 
         Ok(connections)
     }

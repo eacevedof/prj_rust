@@ -31,7 +31,9 @@
       "Bash(powershell.exe:*)",
       "Bash(cmd.exe /c \"start \"\"\"\" \"\"C:\\\\Program Files \\(x86\\)\\\\Microsoft Visual Studio\\\\Installer\\\\vs_installer.exe\"\"\")",
       "Bash(test:*)",
-      "Bash(make run-list-connections:*)"
+      "Bash(make run-list-connections:*)",
+      "Bash(target/debug/list-network-connections.exe:*)",
+      "Bash(tasklist.exe:*)"
     ],
     "deny": [],
     "ask": []
