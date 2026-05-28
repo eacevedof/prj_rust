@@ -1,8 +1,9 @@
 use anyhow::Result;
-use super::{WhoisRepository, WhoisInfo, IpGeolocationRepository, IpGeolocationInfo};
+use serde::{Serialize, Deserialize};
+use super::{WhoisRepository, WhoisInfo, IpGeolocationRepository, IpGeolocationInfo, IpCacheRepository};
 
 /// Información combinada de IP (whois + geolocalización)
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HybridIpInfo {
     /// IP consultada
     pub ip: String,
@@ -28,24 +29,29 @@ pub struct HybridIpInfo {
     /// Rango de IPs (solo de whois)
     pub ip_range: Option<String>,
 
-    /// Método usado: "whois", "api", "hybrid"
+    /// Método usado: "whois", "api", "hybrid", "cache"
     pub source: String,
 }
 
-/// Repositorio híbrido que combina whois + ip-api.com
+/// Repositorio híbrido que combina whois + ip-api.com + caché JSON
 ///
 /// Estrategia:
-/// 1. Consulta whois primero (rápido, sin límite, da organización)
-/// 2. Si whois NO devuelve país, consulta ip-api.com
-/// 3. Combina la mejor información de ambos
+/// 1. Verificar caché primero (15 días de TTL)
+/// 2. Si no está en caché o expiró:
+///    a. Consulta whois primero (rápido, sin límite, da organización)
+///    b. Si whois NO devuelve país, consulta ip-api.com
+///    c. Combina la mejor información de ambos
+///    d. Guarda en caché
 ///
 /// Ventajas:
+/// - Caché de 15 días evita consultas repetidas
 /// - Sin límite de rate (usa api solo cuando es necesario)
 /// - Información completa (organización + geolocalización)
 /// - Optimizado para velocidad
 pub struct HybridIpInfoRepository {
     whois_repo: WhoisRepository,
     geo_repo: IpGeolocationRepository,
+    cache_repo: IpCacheRepository,
 }
 
 impl HybridIpInfoRepository {
@@ -53,6 +59,7 @@ impl HybridIpInfoRepository {
         Self {
             whois_repo: WhoisRepository::new(),
             geo_repo: IpGeolocationRepository::new(),
+            cache_repo: IpCacheRepository::new(),
         }
     }
 
@@ -63,10 +70,13 @@ impl HybridIpInfoRepository {
     /// Obtiene información combinada de una IP
     ///
     /// # Strategy
-    /// 1. Query whois first (no rate limit, fast)
-    /// 2. If whois has country -> use it, done
-    /// 3. If whois has NO country -> query ip-api for geolocation
-    /// 4. Combine best info from both sources
+    /// 1. Check cache first (15 days TTL)
+    /// 2. If not in cache or expired:
+    ///    a. Query whois first (no rate limit, fast)
+    ///    b. If whois has country -> use it, done
+    ///    c. If whois has NO country -> query ip-api for geolocation
+    ///    d. Combine best info from both sources
+    ///    e. Save to cache
     ///
     /// # Arguments
     /// * `ip` - IP address (e.g., "8.8.8.8")
@@ -81,21 +91,26 @@ impl HybridIpInfoRepository {
             return Ok(None);
         }
 
-        // 1. Try whois first
+        // 1. Try cache first
+        if let Some(cached_info) = self.cache_repo.get(ip).await? {
+            return Ok(Some(cached_info));
+        }
+
+        // 2. Not in cache - query whois/api
         let whois_info = self.whois_repo.get_whois_info(ip).await?;
 
-        match whois_info {
+        let result = match whois_info {
             Some(whois) if whois.country.is_some() => {
                 // Whois has country - use it (no need for API call)
-                Ok(Some(self.from_whois_only(ip, whois)))
+                Some(self.from_whois_only(ip, whois))
             }
             Some(whois) => {
                 // Whois has NO country - query API for geolocation
                 let geo_info = self.geo_repo.get_geolocation(ip).await?;
 
                 match geo_info {
-                    Some(geo) => Ok(Some(self.from_hybrid(ip, whois, geo))),
-                    None => Ok(Some(self.from_whois_only(ip, whois))),
+                    Some(geo) => Some(self.from_hybrid(ip, whois, geo)),
+                    None => Some(self.from_whois_only(ip, whois)),
                 }
             }
             None => {
@@ -103,11 +118,18 @@ impl HybridIpInfoRepository {
                 let geo_info = self.geo_repo.get_geolocation(ip).await?;
 
                 match geo_info {
-                    Some(geo) => Ok(Some(self.from_geo_only(ip, geo))),
-                    None => Ok(None),
+                    Some(geo) => Some(self.from_geo_only(ip, geo)),
+                    None => None,
                 }
             }
+        };
+
+        // 3. Save to cache if we got a result
+        if let Some(ref info) = result {
+            let _ = self.cache_repo.set(ip, info.clone()).await;
         }
+
+        Ok(result)
     }
 
     /// Create HybridIpInfo from whois only
