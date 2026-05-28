@@ -54,22 +54,9 @@ impl ProcessInfoRepository {
 
     /// Obtiene información del proceso en Windows usando PowerShell
     async fn get_process_info_windows(&self, pid: u32) -> Result<Option<ProcessInfo>> {
-        // PowerShell command para obtener información completa del proceso
-        // Get-Process -Id PID | Select-Object Id, Name, Path, @{Name='Owner';Expression={(Get-WmiObject -Class Win32_Process -Filter \"ProcessId=$($_.Id)\").GetOwner().User}}
+        // PowerShell command - usa pipeline para obtener nombre y path
         let ps_script = format!(
-            r#"
-            $p = Get-Process -Id {} -ErrorAction SilentlyContinue
-            if ($p) {{
-                $owner = (Get-WmiObject -Class Win32_Process -Filter "ProcessId=$($p.Id)" -ErrorAction SilentlyContinue)
-                if ($owner) {{
-                    $ownerInfo = $owner.GetOwner()
-                    $ownerName = "$($ownerInfo.Domain)\$($ownerInfo.User)"
-                }} else {{
-                    $ownerName = ""
-                }}
-                Write-Output "$($p.Id)|$($p.Name)|$($p.Path)|$ownerName"
-            }}
-            "#,
+            r#"Get-Process -Id {} -ErrorAction SilentlyContinue | ForEach-Object {{ "$($_.Id)|$($_.Name)|$($_.Path)|" }}"#,
             pid
         );
 
@@ -118,7 +105,7 @@ impl ProcessInfoRepository {
         if let Some(pid) = pid {
             Ok(Some(ProcessInfo {
                 pid,
-                name: if name.is_empty() { format!("PID:{}", pid) } else { name },
+                name: if name.is_empty() { "?".to_string() } else { name },
                 path: if path.is_empty() || path == "null" {
                     "Unknown".to_string()
                 } else {

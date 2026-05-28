@@ -26,6 +26,9 @@ run-list: ## List all network connections with country and organization
 run-list-filter: ## List network connections with filter (use f=filter)
 	$(PS) "cargo run --bin list-network-connections $(f)"
 
+run-list-estab: ## list established
+	$(PS) "cargo run --bin list-network-connections stab"
+
 run-watch: ## Watch network connections (auto-refresh every 10s)
 	$(PS) "cargo run --bin watch-network-connections"
 

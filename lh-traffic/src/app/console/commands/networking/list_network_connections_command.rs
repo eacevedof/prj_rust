@@ -66,12 +66,12 @@ impl ListNetworkConnectionsCommand {
 
         // Print header
         println!();
-        CliColor::echo_cyan("=".repeat(140).as_str());
+        CliColor::echo_cyan("=".repeat(150).as_str());
         CliColor::echo_cyan(&format!(
-            "{:<8} {:<22} {:<22} {:<12} {:<6} {:<20} {:<12} {:<25}",
-            "PROTOCOL", "LOCAL ADDRESS", "FOREIGN ADDRESS", "STATE", "PID", "PROGRAM", "COUNTRY", "ORGANIZATION"
+            "{:<8} {:<22} {:<22} {:<12} {:<28} {:<12} {:<30}",
+            "PROTOCOL", "LOCAL ADDRESS", "FOREIGN ADDRESS", "STATE", "PID:PROGRAM", "COUNTRY", "ORGANIZATION"
         ));
-        CliColor::echo_cyan("=".repeat(140).as_str());
+        CliColor::echo_cyan("=".repeat(150).as_str());
 
         // Process each connection
         for (idx, conn) in connections.iter().enumerate() {
@@ -79,17 +79,17 @@ impl ListNetworkConnectionsCommand {
             let local_addr = &conn.local_address;
             let foreign_addr = &conn.foreign_address;
             let state = &conn.state;
-            let pid = conn.pid.map(|p| p.to_string()).unwrap_or_else(|| "-".to_string());
 
-            // Get process name
-            let program = if let Some(ref name) = conn.program_name {
-                name.clone()
-            } else if let Some(p) = conn.pid {
-                if let Ok(Some(info)) = process_repo.get_process_name(p).await {
+            // Get process name (format: PID:name)
+            let program = if let Some(p) = conn.pid {
+                let name = if let Some(ref n) = conn.program_name {
+                    n.clone()
+                } else if let Ok(Some(info)) = process_repo.get_process_name(p).await {
                     info
                 } else {
-                    "-".to_string()
-                }
+                    "?".to_string()
+                };
+                format!("{}:{}", p, name)
             } else {
                 "-".to_string()
             };
@@ -116,15 +116,14 @@ impl ListNetworkConnectionsCommand {
 
             // Print row
             let line = format!(
-                "{:<8} {:<22} {:<22} {:<12} {:<6} {:<20} {:<12} {:<25}",
+                "{:<8} {:<22} {:<22} {:<12} {:<28} {:<12} {:<30}",
                 Self::truncate(protocol, 8),
                 Self::truncate(local_addr, 22),
                 Self::truncate(foreign_addr, 22),
                 Self::truncate(state, 12),
-                Self::truncate(&pid, 6),
-                Self::truncate(&program, 20),
+                Self::truncate(&program, 28),
                 Self::truncate(&country, 12),
-                Self::truncate(&organization, 25)
+                Self::truncate(&organization, 30)
             );
 
             // Color by state
@@ -143,7 +142,7 @@ impl ListNetworkConnectionsCommand {
         }
 
         println!();
-        CliColor::echo_cyan("=".repeat(140).as_str());
+        CliColor::echo_cyan("=".repeat(150).as_str());
         self.base.echo_step(&format!("Total displayed: {}", connections.len()));
 
         Ok(())
