@@ -33,7 +33,8 @@
       "Bash(test:*)",
       "Bash(make run-list-connections:*)",
       "Bash(target/debug/list-network-connections.exe:*)",
-      "Bash(tasklist.exe:*)"
+      "Bash(tasklist.exe:*)",
+      "Bash(./test_tasklist.exe:*)"
     ],
     "deny": [],
     "ask": []

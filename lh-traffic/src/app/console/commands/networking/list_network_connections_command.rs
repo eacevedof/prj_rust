@@ -99,10 +99,12 @@ impl ListNetworkConnectionsCommand {
 
             // Get process name (format: PID:name)
             let program = if let Some(p) = conn.pid {
-                let name = if let Some(ref n) = conn.program_name {
-                    n.clone()
-                } else if let Ok(Some(info)) = process_repo.get_process_name(p).await {
+                // Always try to get real process name from ProcessInfoRepository
+                let name = if let Ok(Some(info)) = process_repo.get_process_name(p).await {
                     info
+                } else if let Some(ref n) = conn.program_name {
+                    // Fallback to program_name from netstat/ss (if available)
+                    n.clone()
                 } else {
                     "?".to_string()
                 };

@@ -75,15 +75,17 @@ impl ProcessInfoRepository {
 
     /// Parsea la salida de tasklist (formato tabla)
     /// Formato:
+    /// (línea vacía)
     /// Nombre de imagen               PID Nombre de sesión Núm. de ses Uso de memor
     /// ========================= ======== ================ =========== ============
     /// claude.exe                   23636 Console                    1   702.360 KB
     fn parse_tasklist_table_output(&self, pid: u32, output: &str) -> Result<Option<ProcessInfo>> {
         // Buscar la línea que contiene el proceso
-        for line in output.lines().skip(2) { // Saltar header y separador
+        for line in output.lines().skip(3) { // Skip: empty line + header + separator
             let line = line.trim();
 
-            if line.is_empty() {
+            // Skip empty lines and separator lines
+            if line.is_empty() || line.starts_with("=") {
                 continue;
             }
 
@@ -97,7 +99,7 @@ impl ProcessInfoRepository {
             // Primera parte es el nombre del proceso
             let name = parts[0].to_string();
 
-            if !name.is_empty() {
+            if !name.is_empty() && !name.starts_with("=") {
                 return Ok(Some(ProcessInfo {
                     pid,
                     name,
