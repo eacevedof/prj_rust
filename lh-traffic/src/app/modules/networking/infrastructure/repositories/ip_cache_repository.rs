@@ -26,7 +26,7 @@ pub struct CachedIpInfo {
 /// Características:
 /// - Un archivo JSON por IP
 /// - Expiración: 15 días
-/// - Ubicación: cache/ip_info/
+/// - Ubicación: storage/cache/
 pub struct IpCacheRepository {
     cache_dir: PathBuf,
     ttl_days: i64,
@@ -35,7 +35,7 @@ pub struct IpCacheRepository {
 impl IpCacheRepository {
     pub fn new() -> Self {
         Self {
-            cache_dir: PathBuf::from("cache/ip_info"),
+            cache_dir: PathBuf::from("storage/cache"),
             ttl_days: 15,
         }
     }
