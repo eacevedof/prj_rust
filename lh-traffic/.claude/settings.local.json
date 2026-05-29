@@ -34,7 +34,10 @@
       "Bash(make run-list-connections:*)",
       "Bash(target/debug/list-network-connections.exe:*)",
       "Bash(tasklist.exe:*)",
-      "Bash(./test_tasklist.exe:*)"
+      "Bash(./test_tasklist.exe:*)",
+      "Bash(Get-ChildItem -Path \"c:\\\\projects\\\\prj-rust\\\\lh-traffic\" -Recurse -Filter \"*.rs\")",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)"
     ],
     "deny": [],
     "ask": []

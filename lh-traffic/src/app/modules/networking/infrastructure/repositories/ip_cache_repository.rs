@@ -54,7 +54,7 @@ impl IpCacheRepository {
     /// * `Ok(None)` - Si no existe o ha expirado
     /// * `Err` - Si hubo un error leyendo el archivo
     pub async fn get(&self, ip: &str) -> Result<Option<HybridIpInfo>> {
-        let cache_path = self.get_cache_path(ip);
+        let cache_path: PathBuf = self.get_cache_path(ip);
 
         // Verificar si existe el archivo
         if !cache_path.exists() {
@@ -62,21 +62,21 @@ impl IpCacheRepository {
         }
 
         // Leer el archivo
-        let content = fs::read_to_string(&cache_path)
+        let content: String = fs::read_to_string(&cache_path)
             .context("Failed to read cache file")?;
 
         // Parsear JSON
-        let cached: CachedIpInfo = serde_json::from_str(&content)
+        let cached_ip_info: CachedIpInfo = serde_json::from_str(&content)
             .context("Failed to parse cache JSON")?;
 
         // Verificar si ha expirado
-        if Utc::now() > cached.expires_at {
+        if Utc::now() > cached_ip_info.expires_at {
             // Expirado - borrar el archivo
             let _ = fs::remove_file(&cache_path);
             return Ok(None);
         }
 
-        Ok(Some(cached.data))
+        Ok(Some(cached_ip_info.data))
     }
 
     /// Guarda información de IP en el caché
@@ -88,23 +88,23 @@ impl IpCacheRepository {
     /// # Returns
     /// * `Ok(())` - Si se guardó correctamente
     /// * `Err` - Si hubo un error escribiendo el archivo
-    pub async fn set(&self, ip: &str, info: HybridIpInfo) -> Result<()> {
+    pub async fn set(&self, ip: &str, hybrid_ip_info: HybridIpInfo) -> Result<()> {
         // Crear directorio de caché si no existe
         fs::create_dir_all(&self.cache_dir)
             .context("Failed to create cache directory")?;
 
-        let now = Utc::now();
-        let expires_at = now + Duration::days(self.ttl_days);
+        let now: DateTime<Utc> = Utc::now();
+        let expires_at: DateTime<Utc> = now + Duration::days(self.ttl_days);
 
-        let cached = CachedIpInfo {
+        let cached_ip_info: CachedIpInfo = CachedIpInfo {
             ip: ip.to_string(),
-            data: info,
+            data: hybrid_ip_info,
             created_at: now,
             expires_at,
         };
 
         // Serializar a JSON
-        let json = serde_json::to_string_pretty(&cached)
+        let json = serde_json::to_string_pretty(&cached_ip_info)
             .context("Failed to serialize cache to JSON")?;
 
         // Escribir al archivo

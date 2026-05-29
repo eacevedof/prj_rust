@@ -13,11 +13,11 @@ async fn main() {
     println!();
 
     // Obtener las conexiones de red
-    let network_repo = SystemNetworkReaderRepository::new();
-    let whois_repo = WhoisRepository::new();
-    let process_repo = ProcessInfoRepository::new();
+    let system_network_reader_repository: SystemNetworkReaderRepository = SystemNetworkReaderRepository::get_instance();
+    let whois_repository: WhoisRepository = WhoisRepository::get_instance();
+    let process_info_repository: ProcessInfoRepository = ProcessInfoRepository::get_instance();
 
-    match network_repo.get_local_network_traffic().await {
+    match system_network_reader_repository.get_local_network_traffic().await {
         Ok(connections) => {
             if connections.is_empty() {
                 println!("{}", "No active network connections found.".yellow());
@@ -56,7 +56,7 @@ async fn main() {
                         pid.to_string().bright_cyan()
                     );
 
-                    match process_repo.get_process_info(pid).await {
+                    match process_info_repository.get_process_info(pid).await {
                         Ok(Some(process_info)) => {
                             println!("  {} {}",
                                 "Process:".bright_yellow(),
@@ -93,45 +93,45 @@ async fn main() {
                 }
 
                 // Whois de la IP remota
-                let remote_ip = whois_repo.extract_ip_from_address(&conn.foreign_address);
+                let remote_ip = whois_repository.extract_ip_from_address(&conn.foreign_address);
 
                 println!("  {} Querying whois for {}...",
                     "Whois:".bright_yellow(),
                     remote_ip.bright_cyan()
                 );
 
-                match whois_repo.get_whois_info(&remote_ip).await {
-                    Ok(Some(whois)) => {
-                        if let Some(org) = whois.organization {
+                match whois_repository.get_whois_info(&remote_ip).await {
+                    Ok(Some(whois_info)) => {
+                        if let Some(org) = whois_info.organization {
                             println!("    {} {}",
                                 "Organization:".bright_green(),
                                 org.bright_white()
                             );
                         }
-                        if let Some(country) = whois.country {
+                        if let Some(country) = whois_info.country {
                             println!("    {} {}",
                                 "Country:".bright_green(),
                                 country.bright_white()
                             );
                         }
-                        if let Some(net_name) = whois.net_name {
+                        if let Some(net_name) = whois_info.net_name {
                             println!("    {} {}",
                                 "Network:".bright_green(),
                                 net_name.bright_white()
                             );
                         }
-                        if let Some(ip_range) = whois.ip_range {
+                        if let Some(ip_range) = whois_info.ip_range {
                             println!("    {} {}",
                                 "IP Range:".bright_green(),
                                 ip_range.bright_black()
                             );
                         }
-                        if let Some(asn) = whois.asn {
+                        if let Some(asn) = whois_info.asn {
                             print!("    {} {}",
                                 "ASN:".bright_green(),
                                 asn.bright_white()
                             );
-                            if let Some(desc) = whois.asn_description {
+                            if let Some(desc) = whois_info.asn_description {
                                 print!(" ({})", desc.bright_black());
                             }
                             println!();

@@ -25,7 +25,7 @@ impl GetLocalNetworkTrafficService {
     pub fn new() -> Self {
         Self {
             logger: Logger::instance(),
-            system_network_reader_repository: SystemNetworkReaderRepository::new(),
+            system_network_reader_repository: SystemNetworkReaderRepository::get_instance(),
         }
     }
 
@@ -37,29 +37,29 @@ impl GetLocalNetworkTrafficService {
 
     /// Método principal del caso de uso
     /// Recibe un DTO de entrada con filtro y devuelve un DTO con filas
-    pub async fn invoke(&self, input: GetLocalNetworkTrafficInputDto) -> Result<GotLocalNetworkTrafficDto> {
+    pub async fn invoke(&self, get_local_network_traffic_input_dto: GetLocalNetworkTrafficInputDto) -> Result<GotLocalNetworkTrafficDto> {
         self.logger
             .log_info(
-                &format!("Starting GetLocalNetworkTrafficService with filter: '{}'", input.filter),
+                &format!("Starting GetLocalNetworkTrafficService with filter: '{}'", get_local_network_traffic_input_dto.filter),
                 "invoke"
             )
             .await;
 
         // Obtener todas las conexiones del sistema
-        let connections = self
+        let network_connection_entities = self
             .system_network_reader_repository
             .get_local_network_traffic()
             .await?;
 
         // Aplicar filtro si existe
-        let filtered_connections = if input.filter.is_empty() {
-            connections
+        let filtered_network_connection_entities = if get_local_network_traffic_input_dto.filter.is_empty() {
+            network_connection_entities
         } else {
-            self.apply_filter(connections, &input.filter)
+            self.apply_filter(network_connection_entities, &get_local_network_traffic_input_dto.filter)
         };
 
         // Convertir las conexiones a filas (HashMap)
-        let rows = self.connections_to_rows(filtered_connections);
+        let rows = self.connections_to_rows(filtered_network_connection_entities);
 
         self.logger
             .log_info(
@@ -73,22 +73,22 @@ impl GetLocalNetworkTrafficService {
 
     /// Aplica el filtro a las conexiones
     /// Busca el filtro en todos los campos de la conexión
-    fn apply_filter(&self, connections: Vec<NetworkConnectionEntity>, filter: &str) -> Vec<NetworkConnectionEntity> {
-        let filter_lower = filter.to_lowercase();
+    fn apply_filter(&self, network_connection_entities: Vec<NetworkConnectionEntity>, filter: &str) -> Vec<NetworkConnectionEntity> {
+        let filter_lower: String = filter.to_lowercase();
 
-        connections
+        network_connection_entities
             .into_iter()
-            .filter(|conn| {
+            .filter(|network_connection_entity| {
                 // Buscar en todos los campos
-                conn.protocol.to_lowercase().contains(&filter_lower)
-                    || conn.local_address.to_lowercase().contains(&filter_lower)
-                    || conn.foreign_address.to_lowercase().contains(&filter_lower)
-                    || conn.state.to_lowercase().contains(&filter_lower)
-                    || conn.program_name
+                network_connection_entity.protocol.to_lowercase().contains(&filter_lower)
+                    || network_connection_entity.local_address.to_lowercase().contains(&filter_lower)
+                    || network_connection_entity.foreign_address.to_lowercase().contains(&filter_lower)
+                    || network_connection_entity.state.to_lowercase().contains(&filter_lower)
+                    || network_connection_entity.program_name
                         .as_ref()
                         .map(|p| p.to_lowercase().contains(&filter_lower))
                         .unwrap_or(false)
-                    || conn.pid
+                    || network_connection_entity.pid
                         .map(|p| p.to_string().contains(filter))
                         .unwrap_or(false)
             })
@@ -97,23 +97,23 @@ impl GetLocalNetworkTrafficService {
 
     /// Convierte NetworkConnectionEntity a Row (HashMap<String, String>)
     /// Similar a convertir a array asociativo en PHP
-    fn connections_to_rows(&self, connections: Vec<NetworkConnectionEntity>) -> Vec<Row> {
-        connections
+    fn connections_to_rows(&self, network_connection_entities: Vec<NetworkConnectionEntity>) -> Vec<Row> {
+        network_connection_entities
             .into_iter()
-            .map(|conn| {
+            .map(|network_connection_entity| {
                 let mut row: Row = HashMap::new();
 
-                row.insert("protocol".to_string(), conn.protocol);
-                row.insert("local_address".to_string(), conn.local_address);
-                row.insert("foreign_address".to_string(), conn.foreign_address);
-                row.insert("state".to_string(), conn.state);
+                row.insert("protocol".to_string(), network_connection_entity.protocol);
+                row.insert("local_address".to_string(), network_connection_entity.local_address);
+                row.insert("foreign_address".to_string(), network_connection_entity.foreign_address);
+                row.insert("state".to_string(), network_connection_entity.state);
                 row.insert(
                     "pid".to_string(),
-                    conn.pid.map(|p| p.to_string()).unwrap_or_else(|| "-".to_string()),
+                    network_connection_entity.pid.map(|p| p.to_string()).unwrap_or_else(|| "-".to_string()),
                 );
                 row.insert(
                     "program_name".to_string(),
-                    conn.program_name.unwrap_or_else(|| "-".to_string()),
+                    network_connection_entity.program_name.unwrap_or_else(|| "-".to_string()),
                 );
 
                 row
@@ -148,10 +148,10 @@ impl GetLocalNetworkTrafficService {
 
     /// Genera un reporte resumido de las conexiones
     pub async fn get_summary(&self) -> Result<NetworkTrafficSummaryDto> {
-        let input = GetLocalNetworkTrafficInputDto::empty();
-        let output = self.invoke(input).await?;
+        let get_local_network_traffic_input_dto = GetLocalNetworkTrafficInputDto::empty();
+        let got_local_network_traffic_dto = self.invoke(get_local_network_traffic_input_dto).await?;
 
-        let tcp_count = output
+        let tcp_count = got_local_network_traffic_dto
             .rows
             .iter()
             .filter(|row| {
@@ -161,7 +161,7 @@ impl GetLocalNetworkTrafficService {
             })
             .count();
 
-        let udp_count = output
+        let udp_count = got_local_network_traffic_dto
             .rows
             .iter()
             .filter(|row| {
@@ -171,7 +171,7 @@ impl GetLocalNetworkTrafficService {
             })
             .count();
 
-        let established_count = output
+        let established_count = got_local_network_traffic_dto
             .rows
             .iter()
             .filter(|row| {
@@ -184,7 +184,7 @@ impl GetLocalNetworkTrafficService {
             })
             .count();
 
-        let listening_count = output
+        let listening_count = got_local_network_traffic_dto
             .rows
             .iter()
             .filter(|row| {
@@ -195,7 +195,7 @@ impl GetLocalNetworkTrafficService {
             .count();
 
         Ok(NetworkTrafficSummaryDto {
-            total_connections: output.total,
+            total_connections: got_local_network_traffic_dto.total,
             tcp_connections: tcp_count,
             udp_connections: udp_count,
             established_connections: established_count,

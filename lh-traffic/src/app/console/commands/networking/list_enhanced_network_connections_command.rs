@@ -4,6 +4,7 @@ use crate::app::modules::networking::infrastructure::repositories::{
     HybridIpInfoRepository,
     ProcessInfoRepository,
 };
+use crate::app::modules::networking::domain::entities::NetworkConnectionEntity;
 use crate::app::console::abstract_command::AbstractCommand;
 
 /// Command to list network connections with enhanced info (country, organization, full path)
@@ -38,16 +39,16 @@ impl ListEnhancedNetworkConnectionsCommand {
     }
 
     async fn execute(&mut self, filter: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
-        let network_repo = SystemNetworkReaderRepository::new();
-        let hybrid_repo = HybridIpInfoRepository::new();
-        let process_repo = ProcessInfoRepository::new();
+        let system_network_reader_repository: SystemNetworkReaderRepository = SystemNetworkReaderRepository::get_instance();
+        let hybrid_ip_info_repository: HybridIpInfoRepository = HybridIpInfoRepository::get_instance();
+        let process_info_repository: ProcessInfoRepository = ProcessInfoRepository::get_instance();
 
         // Get connections
-        let mut connections = network_repo.get_local_network_traffic().await?;
+        let mut connections: Vec<NetworkConnectionEntity> = system_network_reader_repository.get_local_network_traffic().await?;
 
         // Apply filter if provided
         if let Some(ref filter_text) = filter {
-            let filter_lower = filter_text.to_lowercase();
+            let filter_lower: String = filter_text.to_lowercase();
             connections.retain(|conn| {
                 conn.protocol.to_lowercase().contains(&filter_lower)
                     || conn.local_address.to_lowercase().contains(&filter_lower)
@@ -75,17 +76,17 @@ impl ListEnhancedNetworkConnectionsCommand {
 
         // Process each connection
         for (idx, conn) in connections.iter().enumerate() {
-            let protocol = &conn.protocol;
-            let local_addr = &conn.local_address;
-            let foreign_addr = &conn.foreign_address;
-            let state = &conn.state;
-            let pid = conn.pid.map(|p| p.to_string()).unwrap_or_else(|| "-".to_string());
+            let protocol: &String = &conn.protocol;
+            let local_addr: &String = &conn.local_address;
+            let foreign_addr: &String = &conn.foreign_address;
+            let state: &String = &conn.state;
+            let pid: String = conn.pid.map(|p| p.to_string()).unwrap_or_else(|| "-".to_string());
 
             // Get process name (either from connection or query by PID)
-            let program = if let Some(ref name) = conn.program_name {
+            let program: String = if let Some(ref name) = conn.program_name {
                 name.clone()
             } else if let Some(p) = conn.pid {
-                if let Ok(Some(info)) = process_repo.get_process_name(p).await {
+                if let Ok(Some(info)) = process_info_repository.get_process_name(p).await {
                     info
                 } else {
                     "-".to_string()
@@ -95,17 +96,17 @@ impl ListEnhancedNetworkConnectionsCommand {
             };
 
             // Get country and organization from foreign IP (only for remote IPs)
-            let remote_ip = hybrid_repo.extract_ip_from_address(foreign_addr);
-            let is_remote = !remote_ip.starts_with("127.")
+            let remote_ip: String = hybrid_ip_info_repository.extract_ip_from_address(foreign_addr);
+            let is_remote: bool = !remote_ip.starts_with("127.")
                 && !remote_ip.starts_with("0.0.0.0")
                 && remote_ip != "0.0.0.0"
                 && remote_ip != "*";
 
-            let (country, organization) = if is_remote {
-                if let Ok(Some(info)) = hybrid_repo.get_ip_info(&remote_ip).await {
+            let (country, organization): (String, String) = if is_remote {
+                if let Ok(Some(hybrid_ip_info)) = hybrid_ip_info_repository.get_ip_info(&remote_ip).await {
                     (
-                        info.country_code.unwrap_or(info.country),
-                        info.organization
+                        hybrid_ip_info.country_code.unwrap_or(hybrid_ip_info.country),
+                        hybrid_ip_info.organization
                     )
                 } else {
                     ("-".to_string(), "-".to_string())

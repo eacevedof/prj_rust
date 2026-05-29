@@ -14,11 +14,11 @@ async fn main() {
     println!();
 
     // Obtener las conexiones de red
-    let network_repo = SystemNetworkReaderRepository::new();
-    let geo_repo = IpGeolocationRepository::new();
-    let process_repo = ProcessInfoRepository::new();
+    let system_network_reader_repository: SystemNetworkReaderRepository = SystemNetworkReaderRepository::get_instance();
+    let ip_geolocation_repository: IpGeolocationRepository = IpGeolocationRepository::get_instance();
+    let process_info_repository: ProcessInfoRepository = ProcessInfoRepository::get_instance();
 
-    match network_repo.get_local_network_traffic().await {
+    match system_network_reader_repository.get_local_network_traffic().await {
         Ok(connections) => {
             if connections.is_empty() {
                 println!("{}", "No active network connections found.".yellow());
@@ -60,7 +60,7 @@ async fn main() {
                     );
 
                     // Intentar obtener información completa del proceso
-                    match process_repo.get_process_info(pid).await {
+                    match process_info_repository.get_process_info(pid).await {
                         Ok(Some(process_info)) => {
                             println!("  {} {}",
                                 "Process:".bright_yellow(),
@@ -97,34 +97,34 @@ async fn main() {
                 }
 
                 // Geolocalización de la IP remota
-                let remote_ip = geo_repo.extract_ip_from_address(&conn.foreign_address);
+                let remote_ip = ip_geolocation_repository.extract_ip_from_address(&conn.foreign_address);
 
-                match geo_repo.get_geolocation(&remote_ip).await {
-                    Ok(Some(geo)) => {
+                match ip_geolocation_repository.get_geolocation(&remote_ip).await {
+                    Ok(Some(ip_geolocation_info)) => {
                         println!("  {} {} ({})",
                             "Country:".bright_yellow(),
-                            geo.country.bright_green(),
-                            geo.country_code.bright_green().bold()
+                            ip_geolocation_info.country.bright_green(),
+                            ip_geolocation_info.country_code.bright_green().bold()
                         );
                         println!("  {} {} - {}",
                             "Location:".bright_yellow(),
-                            geo.city.bright_white(),
-                            geo.region.bright_black()
+                            ip_geolocation_info.city.bright_white(),
+                            ip_geolocation_info.region.bright_black()
                         );
                         println!("  {} {}",
                             "ISP:".bright_yellow(),
-                            geo.isp.bright_blue()
+                            ip_geolocation_info.isp.bright_blue()
                         );
-                        if geo.lat != 0.0 && geo.lon != 0.0 {
+                        if ip_geolocation_info.lat != 0.0 && ip_geolocation_info.lon != 0.0 {
                             println!("  {} {}, {}",
                                 "Coordinates:".bright_yellow(),
-                                geo.lat.to_string().bright_black(),
-                                geo.lon.to_string().bright_black()
+                                ip_geolocation_info.lat.to_string().bright_black(),
+                                ip_geolocation_info.lon.to_string().bright_black()
                             );
                         }
 
                         // Actualizar estadísticas
-                        *country_stats.entry(geo.country_code.clone()).or_insert(0) += 1;
+                        *country_stats.entry(ip_geolocation_info.country_code.clone()).or_insert(0) += 1;
                     }
                     Ok(None) => {
                         println!("  {} {}",
@@ -154,10 +154,10 @@ async fn main() {
                 );
 
                 for conn in connections.iter().skip(sample_size) {
-                    let remote_ip = geo_repo.extract_ip_from_address(&conn.foreign_address);
+                    let remote_ip = ip_geolocation_repository.extract_ip_from_address(&conn.foreign_address);
 
-                    if let Ok(Some(geo)) = geo_repo.get_geolocation(&remote_ip).await {
-                        *country_stats.entry(geo.country_code.clone()).or_insert(0) += 1;
+                    if let Ok(Some(ip_geolocation_info)) = ip_geolocation_repository.get_geolocation(&remote_ip).await {
+                        *country_stats.entry(ip_geolocation_info.country_code.clone()).or_insert(0) += 1;
                     }
 
                     // Pausa entre requests

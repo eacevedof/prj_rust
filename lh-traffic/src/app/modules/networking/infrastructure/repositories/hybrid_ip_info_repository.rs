@@ -49,17 +49,17 @@ pub struct HybridIpInfo {
 /// - Información completa (organización + geolocalización)
 /// - Optimizado para velocidad
 pub struct HybridIpInfoRepository {
-    whois_repo: WhoisRepository,
-    geo_repo: IpGeolocationRepository,
-    cache_repo: IpCacheRepository,
+    whois_repository: WhoisRepository,
+    ip_geolocation_repository: IpGeolocationRepository,
+    ip_cache_repository: IpCacheRepository,
 }
 
 impl HybridIpInfoRepository {
     pub fn new() -> Self {
         Self {
-            whois_repo: WhoisRepository::new(),
-            geo_repo: IpGeolocationRepository::new(),
-            cache_repo: IpCacheRepository::new(),
+            whois_repository: WhoisRepository::get_instance(),
+            ip_geolocation_repository: IpGeolocationRepository::get_instance(),
+            ip_cache_repository: IpCacheRepository::get_instance(),
         }
     }
 
@@ -92,33 +92,33 @@ impl HybridIpInfoRepository {
         }
 
         // 1. Try cache first
-        if let Some(cached_info) = self.cache_repo.get(ip).await? {
+        if let Some(cached_info) = self.ip_cache_repository.get(ip).await? {
             return Ok(Some(cached_info));
         }
 
         // 2. Not in cache - query whois/api
-        let whois_info = self.whois_repo.get_whois_info(ip).await?;
+        let whois_info_option = self.whois_repository.get_whois_info(ip).await?;
 
-        let result = match whois_info {
-            Some(whois) if whois.country.is_some() => {
+        let result = match whois_info_option {
+            Some(whois_info) if whois_info.country.is_some() => {
                 // Whois has country - use it (no need for API call)
-                Some(self.from_whois_only(ip, whois))
+                Some(self.from_whois_only(ip, whois_info))
             }
-            Some(whois) => {
+            Some(whois_info) => {
                 // Whois has NO country - query API for geolocation
-                let geo_info = self.geo_repo.get_geolocation(ip).await?;
+                let ip_geolocation_info_option = self.ip_geolocation_repository.get_geolocation(ip).await?;
 
-                match geo_info {
-                    Some(geo) => Some(self.from_hybrid(ip, whois, geo)),
-                    None => Some(self.from_whois_only(ip, whois)),
+                match ip_geolocation_info_option {
+                    Some(ip_geolocation_info) => Some(self.from_hybrid(ip, whois_info, ip_geolocation_info)),
+                    None => Some(self.from_whois_only(ip, whois_info)),
                 }
             }
             None => {
                 // Whois failed - try API only
-                let geo_info = self.geo_repo.get_geolocation(ip).await?;
+                let ip_geolocation_info_option = self.ip_geolocation_repository.get_geolocation(ip).await?;
 
-                match geo_info {
-                    Some(geo) => Some(self.from_geo_only(ip, geo)),
+                match ip_geolocation_info_option {
+                    Some(ip_geolocation_info) => Some(self.from_geo_only(ip, ip_geolocation_info)),
                     None => None,
                 }
             }
@@ -126,36 +126,36 @@ impl HybridIpInfoRepository {
 
         // 3. Save to cache if we got a result
         if let Some(ref info) = result {
-            let _ = self.cache_repo.set(ip, info.clone()).await;
+            let _ = self.ip_cache_repository.set(ip, info.clone()).await;
         }
 
         Ok(result)
     }
 
     /// Create HybridIpInfo from whois only
-    fn from_whois_only(&self, ip: &str, whois: WhoisInfo) -> HybridIpInfo {
+    fn from_whois_only(&self, ip: &str, whois_info: WhoisInfo) -> HybridIpInfo {
         HybridIpInfo {
             ip: ip.to_string(),
-            country: whois.country.clone().unwrap_or_else(|| "Unknown".to_string()),
+            country: whois_info.country.clone().unwrap_or_else(|| "Unknown".to_string()),
             country_code: None,
             city: None,
-            organization: whois.organization.unwrap_or_else(|| "Unknown".to_string()),
+            organization: whois_info.organization.unwrap_or_else(|| "Unknown".to_string()),
             isp: None,
-            asn: whois.asn,
-            ip_range: whois.ip_range,
+            asn: whois_info.asn,
+            ip_range: whois_info.ip_range,
             source: "whois".to_string(),
         }
     }
 
     /// Create HybridIpInfo from geo API only
-    fn from_geo_only(&self, ip: &str, geo: IpGeolocationInfo) -> HybridIpInfo {
+    fn from_geo_only(&self, ip: &str, ip_geolocation_info: IpGeolocationInfo) -> HybridIpInfo {
         HybridIpInfo {
             ip: ip.to_string(),
-            country: geo.country.clone(),
-            country_code: Some(geo.country_code.clone()),
-            city: Some(geo.city.clone()),
-            organization: geo.isp.clone(),
-            isp: Some(geo.isp),
+            country: ip_geolocation_info.country.clone(),
+            country_code: Some(ip_geolocation_info.country_code.clone()),
+            city: Some(ip_geolocation_info.city.clone()),
+            organization: ip_geolocation_info.isp.clone(),
+            isp: Some(ip_geolocation_info.isp),
             asn: None,
             ip_range: None,
             source: "api".to_string(),
@@ -163,19 +163,19 @@ impl HybridIpInfoRepository {
     }
 
     /// Create HybridIpInfo from both sources (best of both)
-    fn from_hybrid(&self, ip: &str, whois: WhoisInfo, geo: IpGeolocationInfo) -> HybridIpInfo {
+    fn from_hybrid(&self, ip: &str, whois_info: WhoisInfo, ip_geolocation_info: IpGeolocationInfo) -> HybridIpInfo {
         HybridIpInfo {
             ip: ip.to_string(),
             // Prefer geo country (more accurate)
-            country: geo.country.clone(),
-            country_code: Some(geo.country_code.clone()),
-            city: Some(geo.city.clone()),
+            country: ip_geolocation_info.country.clone(),
+            country_code: Some(ip_geolocation_info.country_code.clone()),
+            city: Some(ip_geolocation_info.city.clone()),
             // Prefer whois organization (more detailed)
-            organization: whois.organization
-                .unwrap_or_else(|| geo.isp.clone()),
-            isp: Some(geo.isp),
-            asn: whois.asn,
-            ip_range: whois.ip_range,
+            organization: whois_info.organization
+                .unwrap_or_else(|| ip_geolocation_info.isp.clone()),
+            isp: Some(ip_geolocation_info.isp),
+            asn: whois_info.asn,
+            ip_range: whois_info.ip_range,
             source: "hybrid".to_string(),
         }
     }

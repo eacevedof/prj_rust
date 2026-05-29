@@ -4,6 +4,7 @@ use crate::app::modules::networking::infrastructure::repositories::{
     HybridIpInfoRepository,
     ProcessInfoRepository,
 };
+use crate::app::modules::networking::domain::entities::NetworkConnectionEntity;
 use crate::app::console::abstract_command::AbstractCommand;
 
 /// Command to list all network connections with country and organization info
@@ -38,12 +39,12 @@ impl ListNetworkConnectionsCommand {
     }
 
     async fn execute(&mut self, filter: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
-        let network_repo = SystemNetworkReaderRepository::new();
-        let hybrid_repo = HybridIpInfoRepository::new();
-        let process_repo = ProcessInfoRepository::new();
+        let system_network_reader_repository: SystemNetworkReaderRepository = SystemNetworkReaderRepository::get_instance();
+        let hybrid_ip_info_repository: HybridIpInfoRepository = HybridIpInfoRepository::get_instance();
+        let process_info_repository: ProcessInfoRepository = ProcessInfoRepository::get_instance();
 
         // Get connections
-        let mut connections = network_repo.get_local_network_traffic().await?;
+        let mut connections: Vec<NetworkConnectionEntity> = system_network_reader_repository.get_local_network_traffic().await?;
 
         // Apply filter if provided (supports multiple filters with comma: "established,remote")
         if let Some(ref filter_text) = filter {
@@ -57,7 +58,7 @@ impl ListNetworkConnectionsCommand {
                 filters.iter().all(|filter_lower| {
                     // Special filter: "remote" = exclude local IPs
                     if filter_lower == "remote" {
-                        let remote_ip = hybrid_repo.extract_ip_from_address(&conn.foreign_address);
+                        let remote_ip: String = hybrid_ip_info_repository.extract_ip_from_address(&conn.foreign_address);
                         return !remote_ip.starts_with("127.")
                             && !remote_ip.starts_with("192.168.")
                             && !remote_ip.starts_with("0.0.0.0")
@@ -86,7 +87,7 @@ impl ListNetworkConnectionsCommand {
         CliColor::echo_cyan("=".repeat(150).as_str());
         CliColor::echo_cyan(&format!(
             "{:<8} {:<22} {:<22} {:<12} {:<28} {:<12} {:<30}",
-            "PROTOCOL", "LOCAL ADDRESS", "FOREIGN ADDRESS", "STATE", "PID:PROGRAM", "COUNTRY", "ORGANIZATION"
+            "PROTOCOL", "LOCAL ADDRESS", "FOREIGN ADDRESS", "STATE", "PID - PROGRAM", "COUNTRY", "ORGANIZATION"
         ));
         CliColor::echo_cyan("=".repeat(150).as_str());
 
@@ -98,9 +99,9 @@ impl ListNetworkConnectionsCommand {
             let state = &conn.state;
 
             // Get process name (format: PID:name)
-            let program = if let Some(p) = conn.pid {
+            let program: String = if let Some(p) = conn.pid {
                 // Always try to get real process name from ProcessInfoRepository
-                let name = if let Ok(Some(info)) = process_repo.get_process_name(p).await {
+                let name: String = if let Ok(Some(info)) = process_info_repository.get_process_name(p).await {
                     info
                 } else if let Some(ref n) = conn.program_name {
                     // Fallback to program_name from netstat/ss (if available)
@@ -108,23 +109,23 @@ impl ListNetworkConnectionsCommand {
                 } else {
                     "?".to_string()
                 };
-                format!("{}:{}", p, name)
+                format!("{} - {}", p, name)
             } else {
                 "-".to_string()
             };
 
             // Get country and organization from foreign IP (only for remote IPs)
-            let remote_ip = hybrid_repo.extract_ip_from_address(foreign_addr);
-            let is_remote = !remote_ip.starts_with("127.")
+            let remote_ip: String = hybrid_ip_info_repository.extract_ip_from_address(foreign_addr);
+            let is_remote: bool = !remote_ip.starts_with("127.")
                 && !remote_ip.starts_with("0.0.0.0")
                 && remote_ip != "0.0.0.0"
                 && remote_ip != "*";
 
-            let (country, organization) = if is_remote {
-                if let Ok(Some(info)) = hybrid_repo.get_ip_info(&remote_ip).await {
+            let (country, organization): (String, String) = if is_remote {
+                if let Ok(Some(hybrid_ip_info)) = hybrid_ip_info_repository.get_ip_info(&remote_ip).await {
                     (
-                        info.country_code.unwrap_or(info.country),
-                        info.organization
+                        hybrid_ip_info.country_code.unwrap_or(hybrid_ip_info.country),
+                        hybrid_ip_info.organization
                     )
                 } else {
                     ("-".to_string(), "-".to_string())
